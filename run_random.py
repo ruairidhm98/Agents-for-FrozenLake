@@ -9,8 +9,8 @@ import sys
 import time
 import numpy as np
 from pprint import pprint
+from constants import *
 import matplotlib.pyplot as plt
-from utils import *
 from agent import Agent
 
 # Reads command line argument and stores # in PROBLEM_ID,
@@ -49,8 +49,6 @@ class RandomAgent(Agent):
             observation = self.env.reset()
             start = time.time()
             for j in range(max_iter_per_episode):
-                # for debugging/develeopment you may want to visualize the individual
-                # steps by uncommenting this line
                 #self.env.render()
                 # takes a random action from the set of actions
                 action = self.env.action_space.sample()
@@ -59,10 +57,6 @@ class RandomAgent(Agent):
                 observation, reward, done, info = self.env.step(action)
                 rewards[i].append(reward)
                 #print("i, iter, reward, done = {0} {1} {2} {3}".format(i, j, reward, done))
-                # iff we are done and we have fallen in a hole
-                # then render the environement, we don't exit the
-                # loop in order to keep all the lists the same size for
-                # computng statistics later on
                 if done and reward == reward_hole:
                     if temp_done == 1:
                         end = time.time()
@@ -70,8 +64,7 @@ class RandomAgent(Agent):
                     temp_done = 0
                     self.env.render()
                     print("We have reached a hole :-( [we can't move so stop trying; just give up]")
-                # iff we are done and we have reached the goal
-                # state, then render environment
+
                 if done and reward == +1.0:
                     if temp_done == 1:
                         end = time.time()
@@ -82,7 +75,7 @@ class RandomAgent(Agent):
                           "That's ok we have achived the goal]")
 
         return (rewards, times)
-    
+
     def __display_results(self, rewards, times, iters):
         """
         Draws the graph of rewards against iteration count after solving
@@ -91,7 +84,6 @@ class RandomAgent(Agent):
         """
         # Compute the mean vector from the results and the covariance matrix
         mean_rewards = np.mean(rewards, axis=0)
-        cov_rewards = np.cov(rewards)
         # Plot the mean vector against iteration count
         plt.rc('figure', figsize=(8.0, 4.0), dpi=140)
         fig = plt.figure()
@@ -106,8 +98,7 @@ class RandomAgent(Agent):
         # Compute the mean time and covariance for each time
         mean_time = np.mean(times)
         std_time = np.std(times)
-        print("Covariance Matrix for the Rewards")
-        pprint(cov_rewards)
+        
         print("Mean Time:          {0}".format(mean_time))
         print("Standard Deviation: {0}".format(std_time))
 
@@ -116,6 +107,5 @@ class RandomAgent(Agent):
         iters = [i for i in range(max_iter_per_episode)]
         self.__display_results(rewards, times, iters)
 
-# Create the random agent and then "solve" the problem
 random_agent = RandomAgent(PROBLEM_ID, True, REWARD_HOLE)
 random_agent.solve_and_display(MAX_EPISODES, MAX_ITERS_PER_EPISODE, REWARD_HOLE)

@@ -1,0 +1,6 @@
+# System files
+.DS_*
+
+# Cached files
+*.pyc
+__pycache__/
