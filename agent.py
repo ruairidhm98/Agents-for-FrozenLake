@@ -15,7 +15,7 @@ class Agent(ABC):
                                reward_hole=reward_hole)
 
   @abstractmethod
-  def solve(self, max_episodes, max_iter_per_episode, reward_hole):
+  def solve_and_display(self, max_episodes, max_iter_per_episode, reward_hole):
       """
       Each type of agent which will solve the problem, will provide an
       unique implementation giving the type of agent it is

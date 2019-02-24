@@ -7,9 +7,10 @@
 """
 import sys
 import time
-import matplotlib.pyplot as plt
 import numpy as np
-from uofgsocsai import LochLomondEnv
+from pprint import pprint
+import matplotlib.pyplot as plt
+from utils import *
 from agent import Agent
 
 # Reads command line argument and stores # in PROBLEM_ID,
@@ -20,10 +21,6 @@ if len(sys.argv) == 2:
 else:
     PROBLEM_ID = 0
 
-MAX_EPISODES = 50
-MAX_ITERS_PER_EPISODE = 50
-REWARD_HOLE = 0.0
-
 # Reset the random generator to a known state (for reproducability)
 np.random.seed(12)
 
@@ -32,7 +29,7 @@ class RandomAgent(Agent):
     Class to represent an agent which takes random actions in order
     to attempt to try and solve the LochLomondEnv problem
     """
-    def solve(self, max_episodes, max_iter_per_episode, reward_hole):
+    def __solve(self, max_episodes, max_iter_per_episode, reward_hole):
         """
         Function which attempts to solve the LochLomondEnv
         problem based on the RandomAgent definition.
@@ -85,32 +82,40 @@ class RandomAgent(Agent):
                           "That's ok we have achived the goal]")
 
         return (rewards, times)
+    
+    def __display_results(self, rewards, times, iters):
+        """
+        Draws the graph of rewards against iteration count after solving
+        the problem and also prints out the mean time taken and standard
+        deviation of the times
+        """
+        # Compute the mean vector from the results and the covariance matrix
+        mean_rewards = np.mean(rewards, axis=0)
+        cov_rewards = np.cov(rewards)
+        # Plot the mean vector against iteration count
+        plt.rc('figure', figsize=(8.0, 4.0), dpi=140)
+        fig = plt.figure()
+        fig.suptitle("Mean reward for each episode against iteration count")
+        ax = fig.add_subplot(1, 1, 1)
+        ax.plot(iters, mean_rewards, label='k5', marker='.')
+        ax.set_xlabel("Iteration count")
+        ax.set_ylabel("Rewards")
+        ax.grid(True)
+        plt.show()
+
+        # Compute the mean time and covariance for each time
+        mean_time = np.mean(times)
+        std_time = np.std(times)
+        print("Covariance Matrix for the Rewards")
+        pprint(cov_rewards)
+        print("Mean Time:          {0}".format(mean_time))
+        print("Standard Deviation: {0}".format(std_time))
+
+    def solve_and_display(self, max_episodes, max_iter_per_episode, reward_hole):
+        rewards, times = self.__solve(max_episodes, max_iter_per_episode, reward_hole)
+        iters = [i for i in range(max_iter_per_episode)]
+        self.__display_results(rewards, times, iters)
 
 # Create the random agent and then "solve" the problem
-RANDOM_AGENT = RandomAgent(PROBLEM_ID, True, REWARD_HOLE)
-rewards, times = RANDOM_AGENT.solve(MAX_EPISODES, MAX_ITERS_PER_EPISODE, REWARD_HOLE)
-# convert the list representation to an array to perform statistics
-# using numpy functions
-rewards_array = np.array(rewards)
-# Compute the mean vector from the results and the covariance matrix
-mean_rewards = np.mean(rewards_array, axis=0)
-cov = np.cov(mean_rewards)
-iters = [i for i in range(MAX_ITERS_PER_EPISODE)]
-
-# Plot the mean vector against iteration count
-plt.rc('figure', figsize=(8.0, 4.0), dpi=140)
-fig = plt.figure()
-fig.suptitle("Mean reward for each episode against iteration count")
-ax = fig.add_subplot(1, 1, 1)
-ax.plot(iters, mean_rewards, label='k5', marker='.')
-ax.set_xlabel("Iteration count")
-ax.set_ylabel("Rewards")
-ax.grid(True)
-plt.show()
-
-# Compute the mean time and covariance for each time
-MEAN_TIME = np.mean(times)
-COV_TIME = np.std(times)
-
-print("Mean Time:          {0}".format(MEAN_TIME))
-print("Standard Deviation: {0}".format(COV_TIME))
+random_agent = RandomAgent(PROBLEM_ID, True, REWARD_HOLE)
+random_agent.solve_and_display(MAX_EPISODES, MAX_ITERS_PER_EPISODE, REWARD_HOLE)
