@@ -43,7 +43,9 @@ class RandomAgent(Agent):
         # each episode
         rewards = [[] for i in range(max_episodes)]
         # keeps track of the time to reach the goal state
-        times = []
+        times = np.zeros((max_episodes,), dtype=np.float64)
+        # used so the time is only computed once per iteration
+        temp_done = 1
         # iterate over the episodes
         for i in range(max_episodes):
             # reset the state of the env to the starting state
@@ -52,28 +54,32 @@ class RandomAgent(Agent):
             for j in range(max_iter_per_episode):
                 # for debugging/develeopment you may want to visualize the individual
                 # steps by uncommenting this line
-                self.env.render()
+                #self.env.render()
                 # takes a random action from the set of actions
                 action = self.env.action_space.sample()
                 # observe and collect the rewards as well as some
                 # other meta data
                 observation, reward, done, info = self.env.step(action)
                 rewards[i].append(reward)
-                print("i, iter, reward, done = {0} {1} {2} {3}".format(i, j, reward, done))
+                #print("i, iter, reward, done = {0} {1} {2} {3}".format(i, j, reward, done))
                 # iff we are done and we have fallen in a hole
                 # then render the environement, we don't exit the
                 # loop in order to keep all the lists the same size for
                 # computng statistics later on
                 if done and reward == reward_hole:
-                    end = time.time()
-                    times.append(end-start)
+                    if temp_done == 1:
+                        end = time.time()
+                        times[i] = end-start
+                    temp_done = 0
                     self.env.render()
                     print("We have reached a hole :-( [we can't move so stop trying; just give up]")
                 # iff we are done and we have reached the goal
                 # state, then render environment
                 if done and reward == +1.0:
-                    end = time.time()
-                    times.append(end-start)
+                    if temp_done == 1:
+                        end = time.time()
+                        times[i] = end-start
+                    temp_done = 0
                     self.env.render()
                     print("We have reached the goal :-) [stop trying to move; we can't]."
                           "That's ok we have achived the goal]")

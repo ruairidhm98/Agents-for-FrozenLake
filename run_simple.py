@@ -1,8 +1,10 @@
 import sys
 import time
 import numpy as np
-from uofgsocsai import LochLomondEnv
+from search import *
 from agent import Agent
+from uofgsocsai import LochLomondEnv
+
 
 if len(sys.argv) == 2:
     PROBLEM_ID = int(sys.argv[1])
@@ -24,3 +26,4 @@ class SimpleAgent(Agent):
         the rewards collected and the time taken in each 
         iteration
         """
+        
