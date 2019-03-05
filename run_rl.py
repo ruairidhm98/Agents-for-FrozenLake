@@ -130,7 +130,3 @@ class QLearningAgent:
             print(next_action)
             print(current_state)
             print("---------------")
-
-
-q = QLearningAgent(0, Ne=5, Rplus=2, alpha=None)
-for i in range(10): q.run_single_trial_verbose()
