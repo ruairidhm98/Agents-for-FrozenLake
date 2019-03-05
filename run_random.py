@@ -24,11 +24,19 @@ else:
 # Reset the random generator to a known state (for reproducability)
 np.random.seed(12)
 
-class RandomAgent(Agent):
+class RandomAgent:
     """
     Class to represent an agent which takes random actions in order
     to attempt to try and solve the LochLomondEnv problem
     """
+    def __init__(self, problem_id):
+        """
+        Constructor to initialise the environment for the agent
+        """
+        self.env = LochLomondEnv(problem_id=problem_id,
+                               is_stochastic=True,
+                               reward_hole=0.0)
+
     def __solve(self, max_episodes, max_iter_per_episode, reward_hole):
         """
         Function which attempts to solve the LochLomondEnv

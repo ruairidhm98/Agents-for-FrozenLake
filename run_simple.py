@@ -4,12 +4,19 @@ Script which defines the SimpleAgent class which uses informed search methods
 """
 import sys
 import time
+from pprint import pprint
 from math import sqrt
 import numpy as np
-from constants import MAX_EPISODES, MAX_ITERS_PER_EPISODE, REWARD_HOLE
-from agent import Agent
+from constants import ( 
+    MAX_EPISODES, MAX_ITERS_PER_EPISODE, REWARD_HOLE
+)
+from search import ( 
+    GraphProblem, PriorityQueue, Node, memoize,
+    UndirectedGraph
+)
 from simple_helpers import generate_heuristics
 from uofgsocsai import LochLomondEnv
+from helpers import env2statespace
 
 # Read in problem ID ad command line argument, and provide default if
 # one wasnt provided
@@ -19,44 +26,75 @@ else:
     PROBLEM_ID = 0
 
 
-class Problem:
-    """
-    Class which represents the problem the agent is trying to save
-    """
-    def __init__(self, initial, goal, graph):
-        """
-        Constructor, which initialses the initial state, the goal state,
-        the graph being searched and heuristics that will inform the agent
-        of the problem in advance
-        """
-        self.initial = initial
-        self.goal = goal
-        self.graph = graph
-        self.heuristics = generate_heuristics(self.graph)
-
-    def is_goal_state(self, state):
-        """
-        Returns true if and only if the state parameter
-        is the goal state
-        """
-        return self.goal == state
-
-
-class SimpleAgent(Agent):
+class SimpleAgent:
     """
     Class to represent a Simple Agent that uses A* search in
     order to solve the LochLomondEnv problem
     """
-    def __solve(self, max_episodes, max_iters_per_episode, reward_hole):
-        """
-        Solves the search problem using A* search, returns
-        the rewards collected and the time taken in each
-        iteration
-        """
-        pass
 
-    def solve_and_display(self, max_episodes, max_iter_per_episode, reward_hole):
+    def __init__(self, problem_id):
         """
-        Collects, then displays the results
+        Constructor to initialise the environment for the simple agent
         """
-        pass
+        self.env = LochLomondEnv(problem_id=problem_id,
+                                 is_stochastic=False,
+                                 reward_hole=0.0)
+        w, x, y, z = env2statespace(self.env)
+        self.state_space_locations = w
+        self.state_space_actions = x
+        self.state_initial_id = y
+        self.state_goal_id = z
+        self.heuristics = generate_heuristics(self.env)
+        self.map = UndirectedGraph(self.state_space_actions)
+        self.problem = GraphProblem('{0}'.format(self.state_initial_id), '{0}'.format(self.state_goal_id), self.map)
+
+    def __my_best_first_graph_search(self, problem, f):
+        """Search the nodes with the lowest f scores first.
+        You specify the function f(node) that you want to minimize; for example,
+        if f is a heuristic estimate to the goal, then we have greedy best
+        first search; if f is node.depth then we have breadth-first search.
+        There is a subtlety: the line "f = memoize(f, 'f')" means that the f
+        values will be cached on the nodes as they are computed. So after doing
+        a best first search you can examine the f values of the path returned."""
+        print("Initial state: " + self.state_initial_id)
+        print("Initial state: " + self.state_goal_id)
+        # we use these two variables at the time of visualisations
+        iterations = 0
+        f = memoize(f, 'f')
+        node = Node(self.problem.initial)
+        iterations += 1
+        if self.problem.goal_test(node.state):
+            iterations += 1
+            return(iterations, node)
+        frontier = PriorityQueue('min', f)
+        frontier.append(node)
+        iterations += 1
+        explored = set()
+        while frontier:
+            node = frontier.pop()
+            iterations += 1
+            if self.problem.goal_test(node.state):
+                iterations += 1
+                return(iterations, node)
+            explored.add(node.state)
+            for child in node.expand(self.problem):
+                if child.state not in explored and child not in frontier:
+                    frontier.append(child)
+                    iterations += 1
+                elif child in frontier:
+                    incumbent = frontier[child]
+                    if f(child) < f(incumbent):
+                        del frontier[incumbent]
+                        frontier.append(child)
+                        iterations += 1
+            iterations += 1
+    
+    def my_astar_search(self, h=None):
+        """A* search is best-first graph search with f(n) = g(n)+h(n).
+        You need to specify the h function when you call astar_search, or
+        else in your Problem subclass."""
+        h = memoize(h or self.problem.h, 'h') # define the heuristic function
+        return self.__my_best_first_graph_search(self.problem, lambda n: n.path_cost + h(n))
+
+simple_agent = SimpleAgent(0)
+pprint(simple_agent.my_astar_search(h=None))
