@@ -54,6 +54,7 @@ class SimpleAgent:
         """
         Returns the goal state
         """
+        return self.get_goal_state
 
     def my_astar_search(self, heur=None):
         """

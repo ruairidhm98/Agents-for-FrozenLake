@@ -44,7 +44,6 @@ class QLearningAgent:
                 # This is just an ordinary square, which there is no reward being in
                 else:
                     reward_desc[i][j] = 0.0
-        from pprint import pprint
         # Create a new GridMDP instance to model the stochastic nature of the
         # environment
         self.mdp = GridMDP(grid=reward_desc, terminals=goal_states)
