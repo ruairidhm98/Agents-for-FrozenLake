@@ -7,6 +7,8 @@ import time
 from pprint import pprint
 from math import sqrt
 import numpy as np
+from uofgsocsai import LochLomondEnv
+from helpers import env2statespace
 from constants import ( 
     MAX_EPISODES, MAX_ITERS_PER_EPISODE, REWARD_HOLE
 )
@@ -14,9 +16,6 @@ from search import (
     GraphProblem, PriorityQueue, Node, memoize,
     UndirectedGraph
 )
-from simple_helpers import generate_heuristics
-from uofgsocsai import LochLomondEnv
-from helpers import env2statespace
 
 # Read in problem ID ad command line argument, and provide default if
 # one wasnt provided
@@ -44,7 +43,6 @@ class SimpleAgent:
         self.state_space_actions = x
         self.state_initial_id = y
         self.state_goal_id = z
-        self.heuristics = generate_heuristics(self.env)
         self.map = UndirectedGraph(self.state_space_actions)
         self.problem = GraphProblem('{0}'.format(self.state_initial_id), '{0}'.format(self.state_goal_id), self.map)
 
