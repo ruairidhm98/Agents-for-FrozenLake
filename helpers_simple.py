@@ -1,3 +1,68 @@
+"""
+Helper functions used in the run_simple
+"""
+from search import (
+    PriorityQueue, Node, memoize,
+    UndirectedGraph
+)
+
+def my_best_first_graph_search(problem, f):
+    """
+    Taken from Lab 3
+    Search the nodes with the lowest f scores first.
+    You specify the function f(node) that you want to minimize; for example,
+    if f is a heuristic estimate to the goal, then we have greedy best
+    first search; if f is node.depth then we have breadth-first search.
+    There is a subtlety: the line "f = memoize(f, 'f')" means that the f
+    values will be cached on the nodes as they are computed. So after doing
+    a best first search you can examine the f values of the path returned.
+    """
+     # keep a track of the number of iterations for use in evaluation
+    iterations = 0
+    f = memoize(f, 'f')
+    node = Node(problem.initial)
+    iterations += 1
+    # This is the goal state
+    if problem.goal_test(node.state):
+        iterations += 1
+        return (iterations, node)
+    # Create a priority queue that is ordered by its distance
+    # from the distance travelled so far (g) + the straight line distance
+    # from the new node to the goal state (h)
+    frontier = PriorityQueue('min', f)
+    frontier.append(node)
+    iterations += 1
+    explored = set()
+    # Loop until there is no more nodes to visit
+    while frontier:
+        # Get the node with minimum f(n) = g(n) + h(n)
+        node = frontier.pop()
+        iterations += 1
+        # We have reached the goal, return the solution
+        if problem.goal_test(node.state):
+            iterations += 1
+            return (iterations, node)
+        # Mark the node as visited
+        explored.add(node.state)
+        # Loop over the nodes neighbours and find the next node
+        # with minimum f(n)
+        for child in node.expand(problem):
+            # Only consider new nodes which havent explored yet
+            # and the ones which we are about to explore in the
+            # loop
+            if child.state not in explored and child not in frontier:
+                frontier.append(child)
+                iterations += 1
+            # Update the new distance (f(n)) for this node
+            # if it is smaller than the previous known one
+            elif child in frontier:
+                incumbent = frontier[child]
+                if f(child) < f(incumbent):
+                    del frontier[incumbent]
+                    frontier.append(child)
+                    iterations += 1
+        iterations += 1
+
 def env2statespace(env):
     """ 
     This simple parser demonstrates how you can extract the state space from the Open AI env
@@ -53,3 +118,4 @@ def env2statespace(env):
                     state_space_actions[state_id] = possible_states
 
     return state_space_locations, state_space_actions, state_initial_id, state_goal_id
+

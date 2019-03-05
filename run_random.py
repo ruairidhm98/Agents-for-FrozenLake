@@ -11,7 +11,6 @@ import numpy as np
 from pprint import pprint
 from constants import *
 import matplotlib.pyplot as plt
-from agent import Agent
 
 # Reads command line argument and stores # in PROBLEM_ID,
 # to specify the problem if this hasnt been provided, then
@@ -57,14 +56,12 @@ class RandomAgent:
             observation = self.env.reset()
             start = time.time()
             for j in range(max_iter_per_episode):
-                #self.env.render()
                 # takes a random action from the set of actions
                 action = self.env.action_space.sample()
                 # observe and collect the rewards as well as some
                 # other meta data
                 observation, reward, done, info = self.env.step(action)
                 rewards[i].append(reward)
-                #print("i, iter, reward, done = {0} {1} {2} {3}".format(i, j, reward, done))
                 if done and reward == reward_hole:
                     if temp_done == 1:
                         end = time.time()

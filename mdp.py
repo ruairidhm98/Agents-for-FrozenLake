@@ -29,12 +29,13 @@ class MDP:
 
         # collect states from transitions table if not passed.
         self.states = states or self.get_states_from_transitions(transitions)
+            
         self.init = init
         
         if isinstance(actlist, list):
             # if actlist is a list, all states have the same actions
             self.actlist = actlist
-        
+
         elif isinstance(actlist, dict):
             # if actlist is a dict, different actions for each state
             self.actlist = actlist
@@ -47,6 +48,7 @@ class MDP:
         self.gamma = gamma
 
         self.reward = reward or {s: 0 for s in self.states}
+
         # self.check_consistency()
 
     def R(self, state):
@@ -129,16 +131,19 @@ class GridMDP(MDP):
     specify the grid as a list of lists of rewards; use None for an obstacle
     (unreachable state). Also, you should specify the terminal states.
     An action is an (x, y) unit vector; e.g. (1, 0) means move east."""
-    def __init__(self, grid, terminals, init=(0, 0), gamma=.9):    # because we want row 0 on bottom, not on top
+
+    def __init__(self, grid, terminals, init=(0, 0), gamma=.9):
+        grid.reverse()     # because we want row 0 on bottom, not on top
         reward = {}
         states = set()
         self.rows = len(grid)
         self.cols = len(grid[0])
+        print(self.rows, self.cols)
         self.grid = grid
         for x in range(self.cols):
             for y in range(self.rows):
-                states.add((x, y))
-                reward[(x, y)] = grid[y][x]
+                    states.add((x, y))
+                    reward[(x, y)] = grid[y][x]
         self.states = states
         actlist = orientations
         transitions = {}
@@ -146,6 +151,7 @@ class GridMDP(MDP):
             transitions[s] = {}
             for a in actlist:
                 transitions[s][a] = self.calculate_T(s, a)
+        print(reward)
         MDP.__init__(self, init, actlist=actlist,
                      terminals=terminals, transitions=transitions, 
                      reward=reward, states=states, gamma=gamma)
@@ -177,7 +183,6 @@ class GridMDP(MDP):
     def to_arrows(self, policy):
         chars = {(1, 0): '>', (0, 1): '^', (-1, 0): '<', (0, -1): 'v', None: '.'}
         return self.to_grid({s: chars[a] for (s, a) in policy.items()})
-
 
 def value_iteration(mdp, epsilon=0.001):
     """Solving an MDP by value iteration. [Figure 17.4]"""
