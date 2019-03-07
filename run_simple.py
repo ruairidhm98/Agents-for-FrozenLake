@@ -65,5 +65,6 @@ class SimpleAgent:
         """
         print("Initial state: " + self.get_initial_state())
         print("Initial state: " + self.get_goal_state())
-        heur = memoize(heur or self.problem.h, 'h') # define the heuristic function
+        # define the heuristic function
+        heur = memoize(heur or self.problem.h, 'h')
         return my_best_first_graph_search(self.problem, lambda n: n.path_cost + heur(n))

@@ -23,18 +23,20 @@ else:
 # Reset the random generator to a known state (for reproducability)
 np.random.seed(12)
 
+
 class RandomAgent:
     """
     Class to represent an agent which takes random actions in order
     to attempt to try and solve the LochLomondEnv problem
     """
+
     def __init__(self, problem_id):
         """
         Constructor to initialise the environment for the agent
         """
         self.env = LochLomondEnv(problem_id=problem_id,
-                               is_stochastic=True,
-                               reward_hole=0.0)
+                                 is_stochastic=True,
+                                 reward_hole=0.0)
 
     def __solve(self, max_episodes, max_iter_per_episode, reward_hole):
         """
@@ -68,7 +70,8 @@ class RandomAgent:
                         times[i] = end-start
                     temp_done = 0
                     self.env.render()
-                    print("We have reached a hole :-( [we can't move so stop trying; just give up]")
+                    print(
+                        "We have reached a hole :-( [we can't move so stop trying; just give up]")
 
                 if done and reward == +1.0:
                     if temp_done == 1:
@@ -103,14 +106,17 @@ class RandomAgent:
         # Compute the mean time and covariance for each time
         mean_time = np.mean(times)
         std_time = np.std(times)
-        
+
         print("Mean Time:          {0}".format(mean_time))
         print("Standard Deviation: {0}".format(std_time))
 
     def solve_and_display(self, max_episodes, max_iter_per_episode, reward_hole):
-        rewards, times = self.__solve(max_episodes, max_iter_per_episode, reward_hole)
+        rewards, times = self.__solve(
+            max_episodes, max_iter_per_episode, reward_hole)
         iters = [i for i in range(max_iter_per_episode)]
         self.__display_results(rewards, times, iters)
 
+
 random_agent = RandomAgent(PROBLEM_ID, True, REWARD_HOLE)
-random_agent.solve_and_display(MAX_EPISODES, MAX_ITERS_PER_EPISODE, REWARD_HOLE)
+random_agent.solve_and_display(
+    MAX_EPISODES, MAX_ITERS_PER_EPISODE, REWARD_HOLE)

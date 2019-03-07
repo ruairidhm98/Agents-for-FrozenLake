@@ -142,8 +142,8 @@ class GridMDP(MDP):
         self.grid = grid
         for x in range(self.cols):
             for y in range(self.rows):
-                    states.add((x, y))
-                    reward[(x, y)] = grid[y][x]
+                states.add((x, y))
+                reward[(x, y)] = grid[y][x]
         self.states = states
         actlist = orientations
         transitions = {}
