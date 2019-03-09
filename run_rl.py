@@ -6,8 +6,9 @@ specifies the problem ID for the environment
 
 import sys
 import random
+from pprint import pprint
 from collections import defaultdict
-from mdp import (
+from rl_helpers import (
     MDP, GridMDP
 )
 from uofgsocsai import LochLomondEnv
@@ -25,7 +26,7 @@ class QLearningAgent:
     its neighbors. [Figure 21.8]
     """
 
-    def __init__(self, problem_id, Ne, Rplus, alpha=None):
+    def __init__(self, problem_id, Ne, Rplus, alpha):
         self.env = LochLomondEnv(problem_id, True, -1.0)
         goal_states = []
         reward_desc = [[None for i in range(self.env.desc.shape[0])] 
@@ -97,15 +98,15 @@ class QLearningAgent:
         Q, Nsa, s, a, r = self.Q, self.Nsa, self.s, self.a, self.r
         alpha, gamma, terminals = self.alpha, self.gamma, self.terminals
         actions_in_state = self.actions_in_state
-
         # We have reached a goal state, we are done
         if s in terminals:
+            print("Im in terminal {0}".format(s))
             Q[s, None] = r1
         # Make sure we are not in the goal state
         if s is not None:
             Nsa[s, a] += 1
             # Update the Q value of the state
-            Q[s, a] += alpha(Nsa[s, a]) * (r + gamma * max(Q[s1, a1] 
+            Q[s, a] += alpha(Nsa[s, a]) * (r + gamma * max(Q[s1, a1]
                 for a1 in actions_in_state(s1)) - Q[s, a])
         if s in terminals:
             self.s = self.a = self.r = None
@@ -120,7 +121,7 @@ class QLearningAgent:
         """
         return percept
 
-    def run_single_trial_verbose(self):
+    def run_single_trial_verbose(self, epsiode):
         """
         Execute trial for given agent_program
         and mdp. mdp should be an instance of subclass
@@ -142,11 +143,17 @@ class QLearningAgent:
             return state
 
         current_state = self.mdp.init
+        pprint(current_state)
+        rewards = []
+        iters = 0
+        file = open("episodes/episode{0}.txt".format(epsiode), "w")
+        file.write("New Episode Here\n")
         # Keep trying until we have found the goal state
         while True:
-            print("---------------")
+            file.write("---------------\n")
             # Collect the reward for being in this state
             current_reward = self.mdp.R(current_state)
+            rewards.append(current_reward)
             # Take in new information from our new state such as
             # the grid position and the reward
             percept = (current_state, current_reward)   
@@ -154,14 +161,20 @@ class QLearningAgent:
             next_action = self(percept)
             # We are in a goal state
             if next_action is None:
+                print("{0}".format(current_state))
+                iters += 1
                 break
             # Move into a new state by taking an action specified in the current policy
             # the agent is following
             current_state = take_single_action(self.mdp, current_state, next_action)
-            print(percept)
-            print(next_action)
-            print(current_state)
-            print("---------------")
+            file.write("{0}\n".format(percept))
+            file.write("{0}\n".format(next_action))
+            file.write("{0}\n".format(current_state))
+            file.write("---------------\n")
+            iters += 1
+        file.close()
+        return (rewards, iters)
 
-q_learning_agent = QLearningAgent(0, 2, 5, None)
-q_learning_agent.run_single_trial_verbose()
+q_learning_agent = QLearningAgent(PROBLEM_ID, 2, 5, None)
+for i in range(10):
+    rewards, iters = q_learning_agent.run_single_trial_verbose(i)

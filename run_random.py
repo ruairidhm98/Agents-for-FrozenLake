@@ -119,4 +119,5 @@ class RandomAgent:
 
 random_agent = RandomAgent(PROBLEM_ID, True, REWARD_HOLE)
 random_agent.solve_and_display(
-    MAX_EPISODES, MAX_ITERS_PER_EPISODE, REWARD_HOLE)
+    MAX_EPISODES, MAX_ITERS_PER_EPISODE, REWARD_HOLE
+)

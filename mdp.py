@@ -133,17 +133,16 @@ class GridMDP(MDP):
     An action is an (x, y) unit vector; e.g. (1, 0) means move east."""
 
     def __init__(self, grid, terminals, init=(0, 0), gamma=.9):
-        grid.reverse()     # because we want row 0 on bottom, not on top
+        #grid.reverse()     # because we want row 0 on bottom, not on top
         reward = {}
         states = set()
         self.rows = len(grid)
         self.cols = len(grid[0])
-        print(self.rows, self.cols)
         self.grid = grid
         for x in range(self.cols):
             for y in range(self.rows):
                 states.add((x, y))
-                reward[(x, y)] = grid[y][x]
+                reward[(x, y)] = grid[x][y]
         self.states = states
         actlist = orientations
         transitions = {}
@@ -151,7 +150,8 @@ class GridMDP(MDP):
             transitions[s] = {}
             for a in actlist:
                 transitions[s][a] = self.calculate_T(s, a)
-        print(reward)
+        from pprint import pprint
+        pprint(actlist)
         MDP.__init__(self, init, actlist=actlist,
                      terminals=terminals, transitions=transitions, 
                      reward=reward, states=states, gamma=gamma)
