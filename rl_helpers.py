@@ -35,12 +35,10 @@ class MDP:
         self.gamma = gamma
 
         self.reward = reward or {s: 0 for s in self.states}
-
         # self.check_consistency()
 
     def R(self, state):
         """Return a numeric reward for this state."""
-
         return self.reward[state]
 
     def T(self, state, action):
@@ -104,7 +102,7 @@ class GridMDP(MDP):
     An action is an (x, y) unit vector; e.g. (1, 0) means move east."""
 
     def __init__(self, grid, terminals, init=(0, 0), gamma=.9):
-        #grid.reverse()     # because we want row 0 on bottom, not on top
+        grid.reverse()     # because we want row 0 on bottom, not on top
         reward = {}
         states = set()
         self.rows = len(grid)
@@ -121,8 +119,6 @@ class GridMDP(MDP):
             transitions[s] = {}
             for a in actlist:
                 transitions[s][a] = self.calculate_T(s, a)
-        from pprint import pprint
-        pprint(actlist)
         MDP.__init__(self, init, actlist=actlist,
                      terminals=terminals, transitions=transitions, 
                      reward=reward, states=states, gamma=gamma)
