@@ -4,7 +4,7 @@ Script which defines the SimpleAgent class which uses informed search methods
 """
 import sys
 from uofgsocsai import LochLomondEnv
-from helpers_simple import env2statespace, my_best_first_graph_search
+from simple_helpers import env2statespace, my_best_first_graph_search
 from search import (
     GraphProblem, memoize, UndirectedGraph
 )

@@ -159,7 +159,6 @@ class LochLomondEnv(discrete.DiscreteEnv):
                             elif(newletter == b'H'):
                                 rew = reward_hole
                             li.append((1.0, newstate, rew, done))
-
         super(LochLomondEnv, self).__init__(nS, nA, P, isd)
 
     def render(self, mode='human'):
