@@ -70,8 +70,8 @@ class RandomAgent:
                         times[i] = end-start
                     temp_done = 0
                     self.env.render()
-                    print(
-                        "We have reached a hole :-( [we can't move so stop trying; just give up]")
+                    print("We have reached a hole :-( [we can't move so stop trying; just give up]")
+                    break
 
                 if done and reward == +1.0:
                     if temp_done == 1:

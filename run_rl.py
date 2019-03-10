@@ -40,12 +40,12 @@ for i in range(8):
             # This is just an ordinary square, which there is no reward being in
         # The starting state
         elif env.desc[i][j] == b'S':
-            starting_states = ((i, j))
+            starting_state = ((i, j))
             reward_desc[i][j] = 0.0
         else:
             reward_desc[i][j] = 0.0
-
-
+#print(reward_desc)
+#print(env.desc[0][7])
 class QLearningAgent:
     """
     TAKEN FROM AIMA TOOLBOX
@@ -55,12 +55,17 @@ class QLearningAgent:
     """
 
     def __init__(self, mdp, Ne, Rplus, alpha=None):
-
+        """
+        Constructor. Creates a new active learning agent that
+        uses Q-learning to decide which actions to take
+        """
         self.gamma = mdp.gamma
         self.terminals = mdp.terminals
         self.all_act = mdp.actlist
-        self.Ne = Ne  # iteration limit in exploration function
-        self.Rplus = Rplus  # large value to assign before iteration limit
+        # iteration limit in exploration function
+        self.Ne = Ne
+        # large value to assign before iteration limit
+        self.Rplus = Rplus
         self.Q = defaultdict(float)
         self.Nsa = defaultdict(float)
         self.s = None
@@ -69,38 +74,45 @@ class QLearningAgent:
 
         if alpha:
             self.alpha = alpha
+        # udacity video
         else:
-            self.alpha = lambda n: 1./(1+n)  # udacity video
+            self.alpha = lambda n: 1./(1+n)
 
     def f(self, u, n):
-        """ Exploration function. Returns fixed Rplus until
+        """
+        Exploration function. Returns fixed Rplus until
         agent has visited state, action a Ne number of times.
-        Same as ADP agent in book."""
+        Same as ADP agent in book.
+        """
         if n < self.Ne:
             return self.Rplus
         else:
             return u
 
     def actions_in_state(self, state):
-        """ Return actions possible in given state.
-            Useful for max and argmax. """
+        """
+        Return actions possible in given state.
+        Useful for max and argmax.
+        """
         if state in self.terminals:
             return [None]
         else:
             return self.all_act
 
     def __call__(self, percept):
+        """
+        The Q-learning algorithm. Updates the Q value for a particular state
+        upon every iteration of the algorithm. Returns the action which the
+        agent should take according to its known Q-values
+        """
         alpha, gamma, terminals = self.alpha, self.gamma, self.terminals
         Q, Nsa = self.Q, self.Nsa
         actions_in_state = self.actions_in_state
         s, a, r = self.s, self.a, self.r
-        s1, r1 = self.update_state(percept) # current state and reward;  s' and r'
-        #print("this s = {0}".format(s))
-        #print(a)
-        #print(r)
-        #print(s1)
-        #print(r1)
-        if s in terminals: # if prev state was a terminal state it should be updated to the reward
+        # current state and reward;  s' and r'
+        s1, r1 = self.update_state(percept)
+        # if prev state was a terminal state it should be updated to the reward
+        if s in terminals:
             Q[s, None] = r
         # corrected from the book, we check if the last action was none i.e. no prev state or a terminal state
         if a is not None:
@@ -120,11 +132,14 @@ class QLearningAgent:
         return percept
 
 
-def run_single_trial_verbose(agent_program, mdp, epsiode):
+def run_single_trial_verbose(agent_program, mdp, episode):
     """
-    Execute trial for given agent_program
-    and mdp. mdp should be an instance of subclass
-    of mdp.MDP
+    Execute trial for given agent_program and mdp. 
+    mdp should be an instance of subclass of mdp.MDP
+    Writes to a file called episode<n>.txt the results
+    of each trial, including actions taken in each state,
+    percepts etc. Returns the number of iterations it took
+    to navigate successfully
     """
 
     def take_single_action(mdp, s, a):
@@ -145,36 +160,51 @@ def run_single_trial_verbose(agent_program, mdp, epsiode):
     agent_program.s = current_state
     rewards = []
     iters = 0
-    file = open("episodes/episode{0}.txt".format(epsiode), "w")
-    file.write("Episode {0}\n".format(epsiode))
+    if episode == 100000:
+        file = open("episodes/episode{0}.txt".format(episode), "w")
+        file.write("Episode {0}\n".format(episode))
     # Keep trying until we have found the goal state
     while True:
-        file.write("---------------\n")
+        if episode == 100000:
+            file.write("---------------\n")
         # Collect the reward for being in this state
         current_reward = mdp.R(current_state)
         rewards.append(current_reward)
         # Take in new information from our new state such as
         # the grid position and the reward
         percept = (current_state, current_reward)
+        if episode == 100000:
+            file.write("{0}\n".format(percept))
+            file.write("{0}\n".format(current_state))
+            file.write("---------------\n")
+        # We have fell in a hole, we need to try again
+        if current_reward == -1.0:
+            iters += 1
+            if episode == 100000:
+                file.write("Reached a hole. Give up\n")
+            break
         # Take the action specified in the agent program (The Q-Learning algorithm)
         next_action = agent_program(percept)
+        if episode == 100000:
+            file.write("{0}\n".format(next_action))
         # We are in a goal state
         if next_action is None:
             iters += 1
+            if episode == 100000:
+                file.write("Reached the Goal!\n")
             break
         # Move into a new state by taking an action specified in the current policy
         # the agent is following
         current_state = take_single_action(mdp, current_state, next_action)
-        file.write("{0}\n".format(percept))
-        file.write("{0}\n".format(next_action))
-        file.write("{0}\n".format(current_state))
-        file.write("---------------\n")
         iters += 1
-    file.close()
+
+    if episode == 100000:
+        file.write("Iterations {0}\n".format(iters))
+        file.write("Rewards: {0}\n".format(rewards))
+        file.close()
     return (rewards, iters)
 
-
-mdp = GridMDP(reward_desc, goal_states, (0, 4), .9)
-q_learning_agent = QLearningAgent(mdp, 100, 100, alpha=None)
-for i in range(10):
+mdp = GridMDP(reward_desc, goal_states, starting_state, .9)
+q_learning_agent = QLearningAgent(mdp, 5, 2, alpha= lambda n: 60./59+n)
+for i in range(100001):
     rewards, iters = run_single_trial_verbose(q_learning_agent, mdp, i)

@@ -1,4 +1,6 @@
-from utils import argmax, vector_add, orientations, turn_right, turn_left
+from utils import ( 
+    argmax, vector_add, orientations, turn_right, turn_left, turn_back
+)
 
 class MDP:
 
@@ -35,7 +37,7 @@ class MDP:
         self.gamma = gamma
 
         self.reward = reward or {s: 0 for s in self.states}
-        # self.check_consistency()
+        self.check_consistency()
 
     def R(self, state):
         """Return a numeric reward for this state."""
@@ -102,7 +104,8 @@ class GridMDP(MDP):
     An action is an (x, y) unit vector; e.g. (1, 0) means move east."""
 
     def __init__(self, grid, terminals, init=(0, 0), gamma=.9):
-        grid.reverse()     # because we want row 0 on bottom, not on top
+        # Because we want row 0 on bottom, not on top
+        #grid.reverse()
         reward = {}
         states = set()
         self.rows = len(grid)
@@ -125,9 +128,10 @@ class GridMDP(MDP):
 
     def calculate_T(self, state, action):
         if action:
-            return [(0.8, self.go(state, action)),
+            return [(0.7, self.go(state, action)),
                     (0.1, self.go(state, turn_right(action))),
-                    (0.1, self.go(state, turn_left(action)))]
+                    (0.1, self.go(state, turn_left(action))),
+                    (0.1, self.go(state, turn_back(action)))]
         else:
             return [(0.0, state)]
     

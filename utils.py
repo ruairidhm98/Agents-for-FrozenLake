@@ -292,7 +292,6 @@ def sigmoid(x):
     return 1 / (1 + math.exp(-x))
 
 
-
 def relu_derivative(value):
 	if value > 0:
 		return 1
@@ -360,7 +359,7 @@ except ImportError:
 
 
 orientations = EAST, NORTH, WEST, SOUTH = [(1, 0), (0, 1), (-1, 0), (0, -1)]
-turns = LEFT, RIGHT = (+1, -1)
+turns = LEFT, DOWN ,RIGHT = (+1, 0, -1)
 
 
 def turn_heading(heading, inc, headings=orientations):
@@ -373,6 +372,10 @@ def turn_right(heading):
 
 def turn_left(heading):
     return turn_heading(heading, LEFT)
+
+
+def turn_back(heading):
+    return turn_heading(heading, DOWN)
 
 
 def distance(a, b):
