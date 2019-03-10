@@ -6,46 +6,18 @@ specifies the problem ID for the environment
 
 import sys
 import random
-from pprint import pprint
+import numpy as np
 from collections import defaultdict
-from rl_helpers import (
-    MDP, GridMDP
-)
 from uofgsocsai import LochLomondEnv
 from utils import argmax
-
+VERBOSE = True
 # Read in command line argument to find the problem id
 if len(sys.argv) == 2:
     PROBLEM_ID = int(sys.argv[1])
 else:
     PROBLEM_ID = 0
 
-env = LochLomondEnv(PROBLEM_ID, True, -1.0)
-goal_states = []
-starting_state = None
-reward_desc = [[None for i in range(env.desc.shape[0])]
-               for j in range(env.desc.shape[1])]
 
-# Get the reward for each state and put it in the necessary
-# index into the list
-for i in range(8):
-    for j in range(8):
-        # A hole, so set reward in that state to be -1.0
-        if env.desc[i][j] == b'H':
-            reward_desc[i][j] = -1.0
-        # The goal state, so set the reward in that state to be +1.0
-        elif env.desc[i][j] == b'G':
-            goal_states.append((i, j))
-            reward_desc[i][j] = +1.0
-            # This is just an ordinary square, which there is no reward being in
-        # The starting state
-        elif env.desc[i][j] == b'S':
-            starting_state = ((i, j))
-            reward_desc[i][j] = 0.0
-        else:
-            reward_desc[i][j] = 0.0
-#print(reward_desc)
-#print(env.desc[0][7])
 class QLearningAgent:
     """
     TAKEN FROM AIMA TOOLBOX
@@ -54,14 +26,17 @@ class QLearningAgent:
     its neighbors. [Figure 21.8]
     """
 
-    def __init__(self, mdp, Ne, Rplus, alpha=None):
+    def __init__(self, env, Ne, Rplus, alpha=None):
         """
         Constructor. Creates a new active learning agent that
         uses Q-learning to decide which actions to take
         """
-        self.gamma = mdp.gamma
-        self.terminals = mdp.terminals
-        self.all_act = mdp.actlist
+        self.gamma = 0.9
+        index = np.where(env.desc==b'G')
+        row = index[0][0]
+        col = index[1][0]
+        self.terminals = [row*8 + col]
+        self.all_act = [act for act in range(env.action_space.n)]
         # iteration limit in exploration function
         self.Ne = Ne
         # large value to assign before iteration limit
@@ -132,7 +107,7 @@ class QLearningAgent:
         return percept
 
 
-def run_single_trial_verbose(agent_program, mdp, episode):
+def run_n_trials(env, agent_program, episodes):
     """
     Execute trial for given agent_program and mdp. 
     mdp should be an instance of subclass of mdp.MDP
@@ -141,70 +116,46 @@ def run_single_trial_verbose(agent_program, mdp, episode):
     percepts etc. Returns the number of iterations it took
     to navigate successfully
     """
-
-    def take_single_action(mdp, s, a):
-        """
-        Select outcome of taking action a
-        in state s. Weighted Sampling.
-        """
-        x = random.uniform(0, 1)
-        cumulative_probability = 0.0
-        for probability_state in mdp.T(s, a):
-            probability, state = probability_state
-            cumulative_probability += probability
-            if x < cumulative_probability:
-                break
-        return state
-
-    current_state = mdp.init
-    agent_program.s = current_state
-    rewards = []
-    iters = 0
-    if episode == 100000:
-        file = open("episodes/episode{0}.txt".format(episode), "w")
-        file.write("Episode {0}\n".format(episode))
+    rewards = [[] for i in range(episodes)]
+    iters = [[0] for i in range(episodes)]
+    file = open("out_qagent_{}trials.txt".format(PROBLEM_ID), "w")
     # Keep trying until we have found the goal state
-    while True:
-        if episode == 100000:
-            file.write("---------------\n")
-        # Collect the reward for being in this state
-        current_reward = mdp.R(current_state)
-        rewards.append(current_reward)
-        # Take in new information from our new state such as
-        # the grid position and the reward
-        percept = (current_state, current_reward)
-        if episode == 100000:
-            file.write("{0}\n".format(percept))
-            file.write("{0}\n".format(current_state))
-            file.write("---------------\n")
-        # We have fell in a hole, we need to try again
-        if current_reward == -1.0:
-            iters += 1
-            if episode == 100000:
-                file.write("Reached a hole. Give up\n")
-            break
-        # Take the action specified in the agent program (The Q-Learning algorithm)
-        next_action = agent_program(percept)
-        if episode == 100000:
-            file.write("{0}\n".format(next_action))
-        # We are in a goal state
-        if next_action is None:
-            iters += 1
-            if episode == 100000:
-                file.write("Reached the Goal!\n")
-            break
-        # Move into a new state by taking an action specified in the current policy
-        # the agent is following
-        current_state = take_single_action(mdp, current_state, next_action)
-        iters += 1
-
-    if episode == 100000:
-        file.write("Iterations {0}\n".format(iters))
-        file.write("Rewards: {0}\n".format(rewards))
-        file.close()
+    for i in range(episodes):
+        if VERBOSE: 
+            file.write("Episode {}\n".format(i))
+        observation = env.reset()
+        reward = 0.0
+        while True:
+            if VERBOSE: file.write("---------------\n")
+            # Take in new information from our new state such as
+            # the grid position and the reward
+            percept = (observation, reward)
+            # We have fell in a hole, we need to try again
+            action = agent_program(percept);
+            if VERBOSE: 
+                file.write("Observation: " + observation.__str__() + "\n")
+                file.write("Action:      {0}\n".format(action))
+            observation, reward, done, info = env.step(action)
+            rewards[i].append(reward)
+            if done and reward == -1.0:
+                iters[i][0] += 1
+                if VERBOSE: file.write("Reached a hole. Give up\n")
+                break
+            # Take the action specified in the agent program (The Q-Learning algorithm)
+            # We are in a goal state
+            if done and reward == 1.0:
+                iters[i][0] += 1
+                if VERBOSE: file.write("Reached the Goal!\n")
+                break
+            # Move into a new state by taking an action specified in the current policy
+            # the agent is following
+            iters[i][0] += 1
+        file.write("---------------\n")
+    file.write("Iterations: {0}\n".format(iters))
+    file.write("Rewards:    {0}\n".format(rewards))
+    file.close()
     return (rewards, iters)
 
-mdp = GridMDP(reward_desc, goal_states, starting_state, .9)
-q_learning_agent = QLearningAgent(mdp, 5, 2, alpha= lambda n: 60./59+n)
-for i in range(100001):
-    rewards, iters = run_single_trial_verbose(q_learning_agent, mdp, i)
+env = LochLomondEnv(PROBLEM_ID, True, -1.0)
+q_learning_agent = QLearningAgent(env, 5, 2, alpha=None)
+rewards, iters = run_n_trials(env, q_learning_agent, 1000)
