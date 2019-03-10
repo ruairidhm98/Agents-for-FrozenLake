@@ -3,14 +3,13 @@ Script which contains a class to represent a Q-learning function that is trying
 to solve the LochLomondEnv problem. Takes a single command line argument which
 specifies the problem ID for the environment
 """
-
 import sys
-import random
 import numpy as np
 from collections import defaultdict
 from uofgsocsai import LochLomondEnv
 from utils import argmax
-VERBOSE = True
+
+
 # Read in command line argument to find the problem id
 if len(sys.argv) == 2:
     PROBLEM_ID = int(sys.argv[1])
@@ -20,7 +19,7 @@ else:
 
 class QLearningAgent:
     """
-    TAKEN FROM AIMA TOOLBOX
+    TAKEN FROM LAB 7-RL
     An exploratory Q-learning agent. It avoids having to learn the transition
     model because the Q-value of a state can be related directly to those of
     its neighbors. [Figure 21.8]
@@ -31,7 +30,7 @@ class QLearningAgent:
         Constructor. Creates a new active learning agent that
         uses Q-learning to decide which actions to take
         """
-        self.gamma = 0.9
+        self.gamma = 0.1
         index = np.where(env.desc==b'G')
         row = index[0][0]
         col = index[1][0]
@@ -102,12 +101,14 @@ class QLearningAgent:
         return self.a
 
     def update_state(self, percept):
-        """To be overridden in most cases. The default case
-        assumes the percept to be of type (state, reward)."""
+        """
+        To be overridden in most cases. The default case
+        assumes the percept to be of type (state, reward).
+        """
         return percept
 
 
-def run_n_trials(env, agent_program, episodes):
+def run_n_trials(env, agent_program, max_episodes, max_iters_per_episode):
     """
     Execute trial for given agent_program and mdp. 
     mdp should be an instance of subclass of mdp.MDP
@@ -116,46 +117,45 @@ def run_n_trials(env, agent_program, episodes):
     percepts etc. Returns the number of iterations it took
     to navigate successfully
     """
-    rewards = [[] for i in range(episodes)]
-    iters = [[0] for i in range(episodes)]
-    file = open("out_qagent_{}trials.txt".format(PROBLEM_ID), "w")
+    rewards = [[] for i in range(max_episodes)]
+    iters = [0 for i in range(max_episodes)]
+    file = open("out_qagent_{}_epsiodes.txt".format(PROBLEM_ID), "w")
     # Keep trying until we have found the goal state
-    for i in range(episodes):
-        if VERBOSE: 
-            file.write("Episode {}\n".format(i))
+    for i in range(max_episodes):
+        file.write("Episode {}\n".format(i))
+        file.write("-----------------------------------------------\n")
         observation = env.reset()
         reward = 0.0
-        while True:
-            if VERBOSE: file.write("---------------\n")
+        for j in range(max_iters_per_episode):
+            file.write("---------------\n")
             # Take in new information from our new state such as
             # the grid position and the reward
             percept = (observation, reward)
             # We have fell in a hole, we need to try again
             action = agent_program(percept);
-            if VERBOSE: 
-                file.write("Observation: " + observation.__str__() + "\n")
-                file.write("Action:      {0}\n".format(action))
+            file.write("Observation: {}\n".format(observation))
+            file.write("Action:      {0}\n".format(action))
             observation, reward, done, info = env.step(action)
             rewards[i].append(reward)
             if done and reward == -1.0:
-                iters[i][0] += 1
-                if VERBOSE: file.write("Reached a hole. Give up\n")
+                iters[i] += 1
+                file.write("Reached a hole. Give up!\n")
                 break
             # Take the action specified in the agent program (The Q-Learning algorithm)
             # We are in a goal state
-            if done and reward == 1.0:
-                iters[i][0] += 1
-                if VERBOSE: file.write("Reached the Goal!\n")
+            if done and reward == +1.0:
+                iters[i] += 1
+                file.write("Reached the Goal!\n")
                 break
             # Move into a new state by taking an action specified in the current policy
             # the agent is following
-            iters[i][0] += 1
-        file.write("---------------\n")
-    file.write("Iterations: {0}\n".format(iters))
-    file.write("Rewards:    {0}\n".format(rewards))
+            iters[i] += 1
+            file.write("---------------\n")
+        # Write to the file if agent used up all of its iterations
+        # in the episode
+        if iters[i] == max_iters_per_episode:
+            file.write("Ran out of iterations!\n")
+        file.write("Iterations: {0}\n".format(iters[i]))
+        file.write("-----------------------------------------------\n")
     file.close()
     return (rewards, iters)
-
-env = LochLomondEnv(PROBLEM_ID, True, -1.0)
-q_learning_agent = QLearningAgent(env, 5, 2, alpha=None)
-rewards, iters = run_n_trials(env, q_learning_agent, 1000)
