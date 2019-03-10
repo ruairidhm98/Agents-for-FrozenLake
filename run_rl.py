@@ -5,9 +5,10 @@ specifies the problem ID for the environment
 """
 import sys
 import numpy as np
+import matplotlib.pyplot as plt
 from collections import defaultdict
-from uofgsocsai import LochLomondEnv
 from utils import argmax
+from uofgsocsai import LochLomondEnv
 
 
 # Read in command line argument to find the problem id
@@ -16,6 +17,8 @@ if len(sys.argv) == 2:
 else:
     PROBLEM_ID = 0
 
+file = open("out_qagent_{}_epsiodes.txt".format(PROBLEM_ID), "w")
+env = LochLomondEnv(PROBLEM_ID, is_stochastic=True, reward_hole=-1.0)
 
 class QLearningAgent:
     """
@@ -25,32 +28,27 @@ class QLearningAgent:
     its neighbors. [Figure 21.8]
     """
 
-    def __init__(self, env, Ne, Rplus, alpha=None):
+    def __init__(self, Ne, Rplus, alpha=None):
         """
         Constructor. Creates a new active learning agent that
         uses Q-learning to decide which actions to take
         """
-        self.gamma = 0.1
+        self.gamma = 0.9
         index = np.where(env.desc==b'G')
-        row = index[0][0]
-        col = index[1][0]
+        row, col = index[0][0], index[1][0]
         self.terminals = [row*8 + col]
         self.all_act = [act for act in range(env.action_space.n)]
         # iteration limit in exploration function
-        self.Ne = Ne
+        self.Ne, self.Rplus = Ne, Rplus
         # large value to assign before iteration limit
-        self.Rplus = Rplus
         self.Q = defaultdict(float)
         self.Nsa = defaultdict(float)
-        self.s = None
-        self.a = None
-        self.r = None
+        self.s = self.a = self.r = None
 
         if alpha:
             self.alpha = alpha
-        # udacity video
         else:
-            self.alpha = lambda n: 1./(1+n)
+            self.alpha = lambda n: 60./(59+n)
 
     def f(self, u, n):
         """
@@ -108,7 +106,7 @@ class QLearningAgent:
         return percept
 
 
-def run_n_trials(env, agent_program, max_episodes, max_iters_per_episode):
+def run_n_trials(agent_program, max_iters_per_episode, episode):
     """
     Execute trial for given agent_program and mdp. 
     mdp should be an instance of subclass of mdp.MDP
@@ -117,45 +115,68 @@ def run_n_trials(env, agent_program, max_episodes, max_iters_per_episode):
     percepts etc. Returns the number of iterations it took
     to navigate successfully
     """
-    rewards = [[] for i in range(max_episodes)]
-    iters = [0 for i in range(max_episodes)]
-    file = open("out_qagent_{}_epsiodes.txt".format(PROBLEM_ID), "w")
+    rewards = []
+    iters = 1
     # Keep trying until we have found the goal state
-    for i in range(max_episodes):
-        file.write("Episode {}\n".format(i))
-        file.write("-----------------------------------------------\n")
-        observation = env.reset()
-        reward = 0.0
-        for j in range(max_iters_per_episode):
-            file.write("---------------\n")
-            # Take in new information from our new state such as
-            # the grid position and the reward
-            percept = (observation, reward)
-            # We have fell in a hole, we need to try again
-            action = agent_program(percept);
-            file.write("Observation: {}\n".format(observation))
-            file.write("Action:      {0}\n".format(action))
-            observation, reward, done, info = env.step(action)
-            rewards[i].append(reward)
-            if done and reward == -1.0:
-                iters[i] += 1
-                file.write("Reached a hole. Give up!\n")
-                break
-            # Take the action specified in the agent program (The Q-Learning algorithm)
-            # We are in a goal state
-            if done and reward == +1.0:
-                iters[i] += 1
-                file.write("Reached the Goal!\n")
-                break
-            # Move into a new state by taking an action specified in the current policy
-            # the agent is following
-            iters[i] += 1
-            file.write("---------------\n")
-        # Write to the file if agent used up all of its iterations
-        # in the episode
-        if iters[i] == max_iters_per_episode:
-            file.write("Ran out of iterations!\n")
-        file.write("Iterations: {0}\n".format(iters[i]))
-        file.write("-----------------------------------------------\n")
-    file.close()
+    file.write("Episode {}\n".format(episode))
+    file.write("-----------------------------------------------\n")
+    observation = env.reset()
+    reward = 0.0
+    for i in range(max_iters_per_episode):
+        file.write("---------------\n")
+        # Take in new information from our new state such as
+        # the grid position and the reward
+        percept = (observation, reward)
+        action = agent_program(percept);
+        file.write("Observation: {}\n".format(observation))
+        file.write("Action:      {}\n".format(action))
+        file.write("Reward:      {}\n".format(reward))
+        observation, reward, done, info = env.step(action)
+        iters += 1
+        rewards.append(reward)
+        # We have fell in a hole, we need to try again
+        if done and reward == -1.0:
+            iters += 1
+            file.write("Reached a hole. Give up!\n")
+            break
+        # Take the action specified in the agent program (The Q-Learning algorithm)
+        # We are in a goal state
+        if done and reward == +1.0:
+            iters += 1
+            file.write("Reached the Goal!\n")
+            break
+        # Move into a new state by taking an action specified in the current policy
+        # the agent is following
+        file.write("---------------\n")
+    file.write("Iterations: {}\n".format(iters))
+    file.write("-----------------------------------------------\n")
     return (rewards, iters)
+
+def graph_utility_estimates_q(agent_program, no_of_iterations, states_to_graph):
+    """
+    Plots the utility estimates
+    """
+    graphs = {state: [] for state in states_to_graph}
+    for iteration in range(1,no_of_iterations+1):
+        run_n_trials(agent_program, 100, iteration)
+        U = defaultdict(lambda: -1000.)
+        for state_action, value in agent_program.Q.items():
+            state, action = state_action
+            if U[state] < value:
+                U[state] = value
+        for state in states_to_graph:            
+            graphs[state].append((iteration, U[state]))
+    for state, value in graphs.items():
+        state_x, state_y = zip(*value)
+        plt.plot(state_x, state_y, label=str(state))
+    plt.ylim([-2.6,2.6])
+    plt.legend(loc='lower right')
+    plt.xlabel('Iterations')
+    plt.ylabel('U')
+    plt.show()
+
+q_learning_agent = QLearningAgent(5, 10, alpha=lambda n: 60./(59+n))
+states = [i for i in range(8)]
+graph_utility_estimates_q(q_learning_agent, 1000, states)
+print(q_learning_agent.Q.items())
+file.close()
