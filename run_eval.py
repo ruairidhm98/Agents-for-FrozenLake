@@ -9,6 +9,7 @@ from pprint import pprint
 import matplotlib.pyplot as plt
 from run_simple import SimpleAgent
 from uofgsocsai import LochLomondEnv
+from solve_trial import run_single_trial
 from run_rl import QLearningAgent, process_data_q
 from simple_helpers import my_best_first_graph_search
 from run_random import RandomAgent, solve, process_data_random
@@ -27,6 +28,8 @@ REWARD_HOLE_Q = -5.00
 
 """
 Collects and prints the results for the Random Agent and draws the graphs
+Draws:
+    Mean Reward per Episode vs Episode Number
 """
 random_agent = RandomAgent()
 process_data_random(random_agent, MAX_EPISODES, MAX_ITERS_PER_EPISODE, REWARD_HOLE_DEFAULT)
@@ -38,9 +41,9 @@ simple_agent = SimpleAgent(PROBLEM_ID)
 """
 Collects and prints the results for the Q-learning Agent and draws the graphs.
 Draws:
-    Mean Reward Graph vs Episode Number
+    Mean Reward per Episode vs Episode Number
     Utility Values in each State against Episode Number
 """
 q_learning_agent = QLearningAgent(5, 2, alpha=None)
 states = [i for i in range(64)]
-process_data_q(q_learning_agent, MAX_EPISODES, MAX_ITERS_PER_EPISODE)
+process_data_q(q_learning_agent, MAX_EPISODES, MAX_ITERS_PER_EPISODE, states)

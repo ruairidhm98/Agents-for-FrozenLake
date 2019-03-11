@@ -8,7 +8,7 @@ from collections import defaultdict
 import numpy as np
 import matplotlib.pyplot as plt
 from utils import argmax
-from solve import run_single_trial
+from solve_trial import run_single_trial
 from uofgsocsai import LochLomondEnv
 from file_io_helpers import write_goal_episodes, write_to_file_results
 from draw_graphs import draw_mean_rewards, draw_utility_estimate_graph
@@ -41,8 +41,8 @@ class QLearningAgent:
         row, col = index[0][0], index[1][0]
         self.terminals = [row*8 + col]
         self.all_act = [act for act in range(env.action_space.n)]
-        # iteration limit in exploration function
-        # large value to assign before iteration limit
+        # Iteration limit in exploration function
+        # Large value to assign before iteration limit
         self.Ne, self.Rplus = Ne, Rplus
         self.Nsa = defaultdict(float)
         self.Q_table = defaultdict(float)
@@ -82,12 +82,12 @@ class QLearningAgent:
         Q_table, Nsa = self.Q_table, self.Nsa
         actions_in_state = self.actions_in_state
         state, action, reward = self.state, self.action, self.reward
-        # current state and reward;  s' and r'
+        # Current state and reward;  s' and r'
         s1, r1 = percept
-        # if prev state was a terminal state it should be updated to the reward
+        # If prev state was a terminal state it should be updated to the reward
         if state in terminals:
             Q_table[state, None] = reward
-        # corrected from the book, we check if the last action was none i.e. no prev state
+        # Corrected from the book, we check if the last action was none i.e. no prev state
         # or a terminal state
         if action is not None:
             Nsa[state, action] += 1
@@ -153,6 +153,6 @@ def process_data_q(agent_program, max_episodes, max_iters_per_episode, states_to
     file.close()
 
 
-q_learning_agent = QLearningAgent(100, 100)
+q_learning_agent = QLearningAgent(10, 5)
 states = [i for i in range(64)]
 process_data_q(q_learning_agent, 350, 250, states)

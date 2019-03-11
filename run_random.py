@@ -9,7 +9,7 @@ import sys
 import numpy as np
 from pprint import pprint
 import matplotlib.pyplot as plt
-from solve import run_single_trial
+from solve_trial import run_single_trial
 from uofgsocsai import LochLomondEnv
 from draw_graphs import draw_mean_rewards
 from file_io_helpers import write_goal_episodes
