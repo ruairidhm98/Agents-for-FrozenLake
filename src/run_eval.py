@@ -23,10 +23,10 @@ Collects and prints the results for the Random Agent and draws the graphs
 Draws:
     Mean Reward per Episode vs Episode Number
 """
-for i in range(0, 8):
-    env = LochLomondEnv(problem_id=i, is_stochastic=True, reward_hole=REWARD_HOLE_DEFAULT)
-    random_agent = RandomAgent()
-    process_data_random(env, random_agent, MAX_EPISODES, MAX_ITERS_PER_EPISODE, REWARD_HOLE_DEFAULT, i)
+#for i in range(0, 8):
+#    env = LochLomondEnv(problem_id=i, is_stochastic=True, reward_hole=REWARD_HOLE_DEFAULT)
+#    random_agent = RandomAgent()
+#    process_data_random(env, random_agent, MAX_EPISODES, MAX_ITERS_PER_EPISODE, REWARD_HOLE_DEFAULT, i)
 """
 Collects and prints the results for the Simple Agent and draws the graphs
 """
@@ -40,8 +40,8 @@ Draws:
     Mean Reward per Episode vs Episode Number
     Utility Values in each State against Episode Number
 """
-states = [i for i in range(64)]
-for i in range(0, 8):
-    env = LochLomondEnv(problem_id=i, is_stochastic=True, reward_hole=REWARD_HOLE_Q)
-    q_learning_agent = QLearningAgent(env, 10, 5, alpha=lambda n: 1./(1+n))
-    process_data_q(env, q_learning_agent, MAX_EPISODES, MAX_ITERS_PER_EPISODE, states, i)
+#states = [i for i in range(64)]
+#for i in range(0, 8):
+#    env = LochLomondEnv(problem_id=i, is_stochastic=True, reward_hole=REWARD_HOLE_Q)
+#    q_learning_agent = QLearningAgent(env, 10, 5, alpha=lambda n: 1./(1+n))
+#    process_data_q(env, q_learning_agent, MAX_EPISODES, MAX_ITERS_PER_EPISODE, states, i)

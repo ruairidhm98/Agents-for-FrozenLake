@@ -155,7 +155,7 @@ def process_data_q(env, agent_program, max_episodes, max_iters_per_episode, stat
     # Get the starting state and goal state indexes in order to write to file
     start_index = np.where(env.desc == b'S')
     row, col = start_index[0][0], start_index[1][0]
-    start = "{} {}".format(row, col)
+    start = "({}, {})".format(row, col)
     end_index = np.where(env.desc == b'G')
     row, col = end_index[0][0], end_index[1][0]
     goal = "({}, {})".format(row, col)

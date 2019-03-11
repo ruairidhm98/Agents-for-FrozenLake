@@ -6,8 +6,8 @@ import sys
 import numpy as np
 from uofgsocsai import LochLomondEnv
 from search import GraphProblem, memoize, UndirectedGraph
-from simple_helpers import env2statespace, my_best_first_graph_search
 from file_io_helpers import write_simple_results, write_to_file_init_states
+from simple_helpers import env2statespace, my_best_first_graph_search, my_astar_search
 
 # Read in problem ID ad command line argument, and provide default if
 # one wasnt provided
@@ -43,18 +43,6 @@ class SimpleAgent:
                                     '{0}'.format(self.state_goal_id), self.map)
 
 
-def my_astar_search(agent_program, heur=None):
-    """
-    Taken from Lab 3
-    A* search is best-first graph search with f(n) = g(n)+h(n).
-    You need to specify the h function when you call astar_search, or
-    else in your Problem subclass.
-    """
-    # define the heuristic function
-    heur = memoize(heur or agent_program.problem.h, 'h')
-    return my_best_first_graph_search(agent_program.problem, lambda n: n.path_cost + heur(n))
-
-
 def process_data_simple(env, agent_program, problem_id):
     """
     Processes the results collected in each trial in a given
@@ -62,10 +50,10 @@ def process_data_simple(env, agent_program, problem_id):
     """
     # Get the start and goal state to write to file
     start_index = np.where(env.desc == b'S')
-    row, col = start_index[0][0], start_index[0][1]
-    start = "{} {}".format(row, col)
+    row, col = start_index[0][0], start_index[1][0]
+    start = "({}, {})".format(row, col)
     end_index = np.where(env.desc == b'G')
-    row, col = end_index[0][0], end_index[0][1]
+    row, col = end_index[0][0], end_index[1][0]
     goal = "({}, {})".format(row, col)
     # Write to the file the iterations it took to reach the goal state using A* search in order
     # to compare to other agents. It is not worth collecting rewards as the agent already knows 
@@ -73,5 +61,5 @@ def process_data_simple(env, agent_program, problem_id):
     iterations = my_astar_search(agent_program)
     file = open("out_simple_{}.txt".format(problem_id), "w")
     write_to_file_init_states(file, problem_id, start, goal)
-    write_simple_results(file, iterations, problem_id)
+    write_simple_results(file, iterations)
     file.close()

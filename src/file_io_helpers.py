@@ -32,7 +32,7 @@ def write_goal_episodes(file, term_states, max_episodes):
                 file.write("                                  ")
         file.write("\n")
 
-def write_simple_results(file, iterations, problem_id):
+def write_simple_results(file, iterations):
     file.write("Number of Iterations to Reach Goal: {}\n".format(iterations))
 
 def write_to_file_results(file, mean_rewards, reward_hole, max_episodes, max_iters_per_episode, iters, term_states):

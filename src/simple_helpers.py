@@ -63,7 +63,20 @@ def my_best_first_graph_search(problem, f):
                     frontier.append(child)
                     iterations += 1
         iterations += 1
+
     return iterations
+
+
+def my_astar_search(agent_program, heur=None):
+    """
+    Taken from Lab 3
+    A* search is best-first graph search with f(n) = g(n)+h(n).
+    You need to specify the h function when you call astar_search, or
+    else in your Problem subclass.
+    """
+    # define the heuristic function
+    heur = memoize(heur or agent_program.problem.h, 'h')
+    return my_best_first_graph_search(agent_program.problem, lambda n: n.path_cost + heur(n))
 
 
 def env2statespace(env):
