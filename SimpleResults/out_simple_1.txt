@@ -1,0 +1,4 @@
+Problem ID:                                1
+Starting State:                            (0, 0)
+Goal State:                                (7, 4)
+Number of Iterations to Reach Goal: (151, <Node S_7_5>)
