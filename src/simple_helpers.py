@@ -63,6 +63,7 @@ def my_best_first_graph_search(problem, f):
                     frontier.append(child)
                     iterations += 1
         iterations += 1
+    return iterations
 
 
 def env2statespace(env):

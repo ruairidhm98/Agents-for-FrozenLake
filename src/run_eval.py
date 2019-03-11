@@ -7,11 +7,10 @@ import matplotlib
 import numpy as np
 from pprint import pprint
 import matplotlib.pyplot as plt
-from run_simple import SimpleAgent
 from uofgsocsai import LochLomondEnv
 from solve_trial import run_single_trial
 from run_rl import QLearningAgent, process_data_q
-from simple_helpers import my_best_first_graph_search
+from run_simple import SimpleAgent, process_data_simple
 from run_random import RandomAgent, process_data_random
 from draw_graphs import draw_mean_rewards, draw_utility_estimate_graph
 
@@ -19,28 +18,28 @@ MAX_EPISODES = 250
 MAX_ITERS_PER_EPISODE = 250
 REWARD_HOLE_DEFAULT = 0.0
 REWARD_HOLE_Q = -5.00
-
 """
 Collects and prints the results for the Random Agent and draws the graphs
 Draws:
     Mean Reward per Episode vs Episode Number
 """
-for i in range(0,8):
+for i in range(0, 8):
     env = LochLomondEnv(problem_id=i, is_stochastic=True, reward_hole=REWARD_HOLE_DEFAULT)
     random_agent = RandomAgent()
     process_data_random(env, random_agent, MAX_EPISODES, MAX_ITERS_PER_EPISODE, REWARD_HOLE_DEFAULT, i)
 """
 Collects and prints the results for the Simple Agent and draws the graphs
 """
-#simple_agent = SimpleAgent(PROBLEM_ID)
-
+for i in range(0, 8):
+    env = LochLomondEnv(problem_id=i, is_stochastic=False, reward_hole=REWARD_HOLE_DEFAULT)
+    simple_agent = SimpleAgent(env)
+    process_data_simple(env, simple_agent, i)
 """
 Collects and prints the results for the Q-learning Agent and draws the graphs.
 Draws:
     Mean Reward per Episode vs Episode Number
     Utility Values in each State against Episode Number
 """
-
 states = [i for i in range(64)]
 for i in range(0, 8):
     env = LochLomondEnv(problem_id=i, is_stochastic=True, reward_hole=REWARD_HOLE_Q)

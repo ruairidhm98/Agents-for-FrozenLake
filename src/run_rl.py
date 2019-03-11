@@ -10,7 +10,7 @@ from collections import defaultdict
 import numpy as np
 
 from draw_graphs import draw_mean_rewards, draw_utility_estimate_graph
-from file_io_helpers import write_goal_episodes, write_to_file_results
+from file_io_helpers import write_goal_episodes, write_to_file_results, write_to_file_init_states
 from solve_trial import run_single_trial
 from uofgsocsai import LochLomondEnv
 from utils import argmax
@@ -152,10 +152,17 @@ def process_data_q(env, agent_program, max_episodes, max_iters_per_episode, stat
     # Plot the utility of each state on the graph using a separate colour
     # for each state
     draw_utility_estimate_graph(graphs, problem_id)
+    # Get the starting state and goal state indexes in order to write to file
+    start_index = np.where(env.desc == b'S')
+    row, col = start_index[0][0], start_index[1][0]
+    start = "{} {}".format(row, col)
+    end_index = np.where(env.desc == b'G')
+    row, col = end_index[0][0], end_index[1][0]
+    goal = "({}, {})".format(row, col)
     # Write to the open file, some statistics relating to the trial for
     # further analysis
     file = open("out_qagent_{}.txt".format(problem_id), "w")
-    write_to_file_results(file, mean_rewards, problem_id,
-                          REWARD_HOLE, max_episodes, max_iters_per_episode, iters, num_goal_reached)
+    write_to_file_init_states(file, problem_id, start, goal)
+    write_to_file_results(file, mean_rewards, REWARD_HOLE, max_episodes, max_iters_per_episode, iters, num_goal_reached)
     write_goal_episodes(file, num_goal_reached, max_episodes)
     file.close()

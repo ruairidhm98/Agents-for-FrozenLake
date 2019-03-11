@@ -3,6 +3,13 @@ Script which contains some helper with regards to File I/O
 """
 import numpy as np
 
+def write_to_file_init_states(file, problem_id, start, goal):
+    """
+    Writes the initial and goal states to a file and the problem ID
+    """
+    file.write("Problem ID:                                {}\n".format(problem_id))
+    file.write("Starting State:                            {}\n".format(start))
+    file.write("Goal State:                                {}\n".format(goal))
 
 def write_goal_episodes(file, term_states, max_episodes):
     """
@@ -25,16 +32,17 @@ def write_goal_episodes(file, term_states, max_episodes):
                 file.write("                                  ")
         file.write("\n")
 
+def write_simple_results(file, iterations, problem_id):
+    file.write("Number of Iterations to Reach Goal: {}\n".format(iterations))
 
-def write_to_file_results(file, mean_rewards, problem_id, reward_hole, max_episodes, max_iters_per_episode, iters, term_states):
+def write_to_file_results(file, mean_rewards, reward_hole, max_episodes, max_iters_per_episode, iters, term_states):
     """
     Writes to the file the results collected from running episodes
     """
     fastest_iters = None
     goal_states_reached = np.nonzero(term_states)[0]
-    if len(term_states) > 0:
+    if len(goal_states_reached) > 0:
         fastest_iters = iters[np.argmin(goal_states_reached)]
-    file.write("Problem ID:                                {}\n".format(problem_id))
     file.write("Reward Hole:                               {}\n".format(reward_hole))
     file.write("Number of Episodes:                        {}\n".format(max_episodes))
     file.write("Max Number of Iterations per Episode:      {}\n".format(max_iters_per_episode))
