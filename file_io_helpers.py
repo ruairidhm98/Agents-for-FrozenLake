@@ -9,12 +9,12 @@ def write_goal_episodes(file, term_states, max_episodes):
     Writes to the file the episode numbers in which
     the goal states were reached
     """
-    goal_states_reached = np.where(term_states == 1)
+    print(term_states)
+    goal_states_reached = np.nonzero(term_states)[0]
+    print(goal_states_reached)
     num_goals = len(goal_states_reached)
-    print(num_goals)
     file.write(
         "Number of Times The Agent Reached The Goal: {0}/{1}\n".format(num_goals, max_episodes))
-    print(goal_states_reached)
     if num_goals > 0:
         file.write("Episodes Where Goal Was Reached:")
         # Write the episodes where the goal was reached in order to
@@ -28,12 +28,14 @@ def write_goal_episodes(file, term_states, max_episodes):
         file.write("\n")
 
 
-def write_to_file_results(file, mean_rewards, problem_id, reward_hole):
+def write_to_file_results(file, mean_rewards, problem_id, reward_hole, max_episodes, max_iters):
     """
     Writes to the file the results collected from running episodes
     """
-    file.write("Problem ID:            {}\n".format(problem_id))
-    file.write("Reward Hole:           {}\n".format(reward_hole))
-    file.write("Covariance of Rewards: {}\n".format(np.cov(mean_rewards)))
-    file.write("Maximum Mean Reward:   {}\n".format(np.max(mean_rewards)))
-    file.write("Minimum Mean Reward:   {}\n".format(np.min(mean_rewards)))
+    file.write("Problem ID:                           {}\n".format(problem_id))
+    file.write("Reward Hole:                          {}\n".format(reward_hole))
+    file.write("Number of Episodes                    {}\n".format(max_episodes))
+    file.write("Max Number of Iterations per episode: {}\n".format(max_iters))
+    file.write("Covariance of Rewards:                {}\n".format(np.cov(mean_rewards)))
+    file.write("Maximum Mean Reward:                  {}\n".format(np.max(mean_rewards)))
+    file.write("Minimum Mean Reward:                  {}\n".format(np.min(mean_rewards)))

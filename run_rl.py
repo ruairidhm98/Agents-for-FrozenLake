@@ -6,10 +6,9 @@ specifies the problem ID for the environment
 import sys
 from collections import defaultdict
 import numpy as np
-import matplotlib.pyplot as plt
 from utils import argmax
-from solve_trial import run_single_trial
 from uofgsocsai import LochLomondEnv
+from solve_trial import run_single_trial
 from file_io_helpers import write_goal_episodes, write_to_file_results
 from draw_graphs import draw_mean_rewards, draw_utility_estimate_graph
 
@@ -19,7 +18,7 @@ if len(sys.argv) == 2:
 else:
     PROBLEM_ID = 0
 
-REWARD_HOLE = -5.00
+REWARD_HOLE = -10.00
 env = LochLomondEnv(PROBLEM_ID, is_stochastic=True, reward_hole=REWARD_HOLE)
 
 
@@ -31,7 +30,7 @@ class QLearningAgent:
     its neighbors. [Figure 21.8]
     """
 
-    def __init__(self, Ne, Rplus, alpha=None):
+    def __init__(self, Ne, Rplus, alpha):
         """
         Constructor. Creates a new active learning agent that
         uses Q-learning to decide which actions to take
@@ -41,12 +40,12 @@ class QLearningAgent:
         row, col = index[0][0], index[1][0]
         self.terminals = [row*8 + col]
         self.all_act = [act for act in range(env.action_space.n)]
-        # Iteration limit in exploration function
-        # Large value to assign before iteration limit
+        # iteration limit in exploration function
         self.Ne, self.Rplus = Ne, Rplus
+        # large value to assign before iteration limit
+        self.Q = defaultdict(float)
         self.Nsa = defaultdict(float)
-        self.Q_table = defaultdict(float)
-        self.state = self.action = self.reward = None
+        self.s = self.a = self.r = None
 
         if alpha:
             self.alpha = alpha
@@ -61,7 +60,8 @@ class QLearningAgent:
         """
         if n < self.Ne:
             return self.Rplus
-        return u
+        else:
+            return u
 
     def actions_in_state(self, state):
         """
@@ -70,37 +70,42 @@ class QLearningAgent:
         """
         if state in self.terminals:
             return [None]
-        return self.all_act
+        else:
+            return self.all_act
 
     def __call__(self, percept):
         """
-        Agent Program (The Q-learning algorithm). Updates the Q value for a particular state
+        The Q-learning algorithm. Updates the Q value for a particular state
         upon every iteration of the algorithm. Returns the action which the
         agent should take according to its known Q-values
         """
         alpha, gamma, terminals = self.alpha, self.gamma, self.terminals
-        Q_table, Nsa = self.Q_table, self.Nsa
+        Q, Nsa = self.Q, self.Nsa
         actions_in_state = self.actions_in_state
-        state, action, reward = self.state, self.action, self.reward
+        s, a, r = self.s, self.a, self.r
         # Current state and reward;  s' and r'
-        s1, r1 = percept
+        s1, r1 = self.update_state(percept)
         # If prev state was a terminal state it should be updated to the reward
-        if state in terminals:
-            Q_table[state, None] = reward
-        # Corrected from the book, we check if the last action was none i.e. no prev state
-        # or a terminal state
-        if action is not None:
-            Nsa[state, action] += 1
-            Q_table[state, action] += alpha(Nsa[state, action]) * (reward + gamma * max(
-                Q_table[s1, a1] for a1 in actions_in_state(s1)) - Q_table[state, action])
+        if s in terminals:
+            Q[s, None] = r
+        # Corrected from the book, we check if the last action was none i.e. no prev state or a terminal state
+        if a is not None:
+            Nsa[s, a] += 1
+            Q[s, a] += alpha(Nsa[s, a]) * (r + gamma * max(Q[s1, a1] for a1 in actions_in_state(s1)) - Q[s, a])
         # Update for next iteration
-        if state in terminals:
-            self.state = self.action = self.reward = None
+        if s in terminals:
+            self.s = self.a = self.r = None
         else:
-            self.state, self.reward = s1, r1
-            self.action = argmax(actions_in_state(
-                s1), key=lambda a1: self.f(Q_table[s1, a1], Nsa[s1, a1]))
-        return self.action
+            self.s, self.r = s1, r1
+            self.a = argmax(actions_in_state(s1), key=lambda a1: self.f(Q[s1, a1], Nsa[s1, a1]))
+        return self.a
+
+    def update_state(self, percept):
+        """
+        To be overridden in most cases. The default case
+        assumes the percept to be of type (state, reward).
+        """
+        return percept
 
 
 def process_data_q(agent_program, max_episodes, max_iters_per_episode, states_to_graph):
@@ -119,19 +124,18 @@ def process_data_q(agent_program, max_episodes, max_iters_per_episode, states_to
     # Run no_of_iterations amount of episodes
     for i in range(1, max_episodes+1):
         # Collect the rewards and iteration count for the current episode
-        temp_rewards, iters[i-1], goal = run_single_trial(
-            env, agent_program, REWARD_HOLE, max_iters_per_episode)
-
+        temp_rewards, iters[i-1], goal = run_single_trial(env, agent_program, max_iters_per_episode, REWARD_HOLE)
+        # Compute the mean reward for the episode
+        mean_rewards[i-1] = np.mean(temp_rewards)
         if goal:
             num_goal_reached[i-1] = 1
         U = defaultdict(lambda: -1000.)
         # Collect all the utility values in a dictionary from the current trial,
         # updating the values if a higher utility has been found
-        for state_action, value in agent_program.Q_table.items():
+        for state_action, value in agent_program.Q.items():
             state, action = state_action
             if U[state] < value:
                 U[state] = value
-        mean_rewards[i-1] = np.mean(temp_rewards)
 
         for state in states_to_graph:
             graphs[state].append((i, U[state]))
@@ -140,19 +144,18 @@ def process_data_q(agent_program, max_episodes, max_iters_per_episode, states_to
     draw_mean_rewards(mean_rewards, max_episodes)
     # Compute the covariance of the mean rewards
     cov_rewards = np.cov(mean_rewards)
-    # Write to the open file, some statistics relating to the trial for
-    # further analysis
-    goal_states = np.where(num_goal_reached == 1)
     # Plot the utility of each state on the graph using a separate colour
     # for each state
-    draw_utility_estimate_graph(graphs)
-    # Writes to the file statistics relating to the trials/episodes
+    draw_utility_estimate_graph(graphs)    
+    # Write to the open file, some statistics relating to the trial for
+    # further analysis
     file = open("out_qagent_{}.txt".format(PROBLEM_ID), "w")
-    write_to_file_results(file, mean_rewards, PROBLEM_ID, REWARD_HOLE)
-    write_goal_episodes(file, goal_states, max_episodes)
+    write_to_file_results(file, mean_rewards, PROBLEM_ID,
+                          REWARD_HOLE, max_episodes, max_iters_per_episode)
+    write_goal_episodes(file, num_goal_reached, max_episodes)
     file.close()
 
 
-q_learning_agent = QLearningAgent(10, 5)
+q_learning_agent = QLearningAgent(100, 50, alpha=lambda n: 1./4+n)
 states = [i for i in range(64)]
 process_data_q(q_learning_agent, 350, 250, states)

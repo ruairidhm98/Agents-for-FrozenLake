@@ -7,12 +7,11 @@ and standard deviation of the time is printed to the stdout
 """
 import sys
 import numpy as np
-from pprint import pprint
 import matplotlib.pyplot as plt
 from solve_trial import run_single_trial
 from uofgsocsai import LochLomondEnv
 from draw_graphs import draw_mean_rewards
-from file_io_helpers import write_goal_episodes
+from file_io_helpers import write_goal_episodes, write_to_file_results
 
 # Reads command line argument and stores # in PROBLEM_ID,
 # to specify the problem if this hasnt been provided, then
@@ -24,13 +23,9 @@ else:
 
 REWARD_HOLE = 0.0
 
-rand_file = open("out_random_{}.txt".format(PROBLEM_ID), "w")
-rand_file.write("Problem ID: {}\n".format(PROBLEM_ID))
-rand_file.write("Reward Hole: {}\n".format(REWARD_HOLE))
-
 # Reset the random generator to a known state (for reproducability)
 np.random.seed(12)
-env = LochLomondEnv(PROBLEM_ID, is_stochastic=True, reward_hole=0.0)
+env = LochLomondEnv(problem_id=PROBLEM_ID, is_stochastic=True, reward_hole=REWARD_HOLE)
 
 
 class RandomAgent:
@@ -39,7 +34,7 @@ class RandomAgent:
     to attempt to try and solve the LochLomondEnv problem
     """
 
-    def __call__(self, param):
+    def __call__(self, percept):
         """
         Agent program, returns a random action to be taken
         """
@@ -60,18 +55,16 @@ def process_data_random(agent_program, max_episodes, max_iter_per_episode, rewar
     # count for data analysis
     for i in range(max_episodes):
         temp_rewards, iters[i], reached_goal = run_single_trial(
-            env, agent_program, reward_hole, max_iter_per_episode)
+            env, agent_program, max_iter_per_episode, REWARD_HOLE)
 
         mean_rewards[i] = np.mean(temp_rewards)
         if reached_goal:
             num_goal[i] = 1
 
     file = open("out_random_{}.txt".format(PROBLEM_ID), "w")
-    file.write(
-        "Reached The Goal State: {0}/{1}".format(num_goal, max_episodes))
+    write_to_file_results(file, mean_rewards, PROBLEM_ID,
+                          REWARD_HOLE, max_episodes, max_iter_per_episode)
 
-    write_goal_episodes(rand_file, num_goal, max_episodes)
+    write_goal_episodes(file, num_goal, max_episodes)
     draw_mean_rewards(mean_rewards, max_episodes)
-
-random_agent = RandomAgent()
-process_data_random(random_agent, 100, 250, 0.0)
+    file.close()

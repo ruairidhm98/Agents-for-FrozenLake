@@ -6,7 +6,6 @@ def draw_mean_rewards(rewards, num_episodes):
     Draws the graph of the mean reward against
     the episode number
     """
-    print(rewards)
     episode_axis = [i for i in range(num_episodes)]
     # Plot the mean vector against iteration count
     plt.rc('figure', figsize=(8.0, 4.0), dpi=140)
