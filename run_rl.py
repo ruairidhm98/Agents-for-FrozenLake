@@ -18,7 +18,7 @@ else:
     PROBLEM_ID = 0
 
 file = open("out_qagent_{}_epsiodes.txt".format(PROBLEM_ID), "w")
-env = LochLomondEnv(PROBLEM_ID, is_stochastic=True, reward_hole=-1.0)
+env = LochLomondEnv(PROBLEM_ID, is_stochastic=True, reward_hole=-10.00)
 
 class QLearningAgent:
     """
@@ -158,7 +158,7 @@ def graph_utility_estimates_q(agent_program, no_of_iterations, states_to_graph):
     """
     graphs = {state: [] for state in states_to_graph}
     for iteration in range(1,no_of_iterations+1):
-        run_n_trials(agent_program, 100, iteration)
+        run_n_trials(agent_program, 250, iteration)
         U = defaultdict(lambda: -1000.)
         for state_action, value in agent_program.Q.items():
             state, action = state_action
@@ -175,8 +175,8 @@ def graph_utility_estimates_q(agent_program, no_of_iterations, states_to_graph):
     plt.ylabel('U')
     plt.show()
 
-q_learning_agent = QLearningAgent(5, 10, alpha=lambda n: 60./(59+n))
-states = [i for i in range(8)]
+q_learning_agent = QLearningAgent(5, 10, alpha=lambda n: 1./(1+n))
+states = [i for i in range(64)]
 graph_utility_estimates_q(q_learning_agent, 1000, states)
 print(q_learning_agent.Q.items())
 file.close()
