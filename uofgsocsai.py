@@ -1,9 +1,9 @@
-import numpy as np
 import sys
-from six import StringIO, b
 
+import numpy as np
 from gym import utils
 from gym.envs.toy_text import discrete
+from six import StringIO, b
 
 LEFT = 0
 DOWN = 1
@@ -55,16 +55,16 @@ class LochLomondEnv(discrete.DiscreteEnv):
 
     S : starting point, safe
     F : frozen surface, safe
-    H : hole, fall to your doom (notice: the environment doesn't actuall return negative reward in this case; 
+    H : hole, fall to your doom (notice: the environment doesn't actuall return negative reward in this case;
         depending on your approach this might be something to watch out for...)
     G : goal, where the frisbee is located
     X : Shows you where your at a given point (when running/rendering the env)
 
-    The episode ends when you reach the goal or fall in a hole 
-    (ends means that env.step will return "done=True"; you will 
-    still be able to render the env). Falling in a hole is not fatal, 
-    it just means you need to get up and get dry and warm and can't 
-    reach the goal in this episode). 
+    The episode ends when you reach the goal or fall in a hole
+    (ends means that env.step will return "done=True"; you will
+    still be able to render the env). Falling in a hole is not fatal,
+    it just means you need to get up and get dry and warm and can't
+    reach the goal in this episode).
 
     The rewards from the env are defined as follows:
         - you receive a reward of +1.0 if you reach the goal, 

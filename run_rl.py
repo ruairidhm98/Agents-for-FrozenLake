@@ -1,3 +1,4 @@
+from pprint import pprint
 """
 Script which contains a class to represent a Q-learning function that is trying
 to solve the LochLomondEnv problem. Takes a single command line argument which
@@ -5,12 +6,14 @@ specifies the problem ID for the environment
 """
 import sys
 from collections import defaultdict
+
 import numpy as np
-from utils import argmax
-from uofgsocsai import LochLomondEnv
-from solve_trial import run_single_trial
-from file_io_helpers import write_goal_episodes, write_to_file_results
+
 from draw_graphs import draw_mean_rewards, draw_utility_estimate_graph
+from file_io_helpers import write_goal_episodes, write_to_file_results
+from solve_trial import run_single_trial
+from uofgsocsai import LochLomondEnv
+from utils import argmax
 
 # Read in command line argument to find the problem id
 if len(sys.argv) == 2:
@@ -18,8 +21,7 @@ if len(sys.argv) == 2:
 else:
     PROBLEM_ID = 0
 
-REWARD_HOLE = -10.00
-env = LochLomondEnv(PROBLEM_ID, is_stochastic=True, reward_hole=REWARD_HOLE)
+REWARD_HOLE = -5.00
 
 
 class QLearningAgent:
@@ -30,7 +32,7 @@ class QLearningAgent:
     its neighbors. [Figure 21.8]
     """
 
-    def __init__(self, Ne, Rplus, alpha):
+    def __init__(self, env, Ne, Rplus, alpha):
         """
         Constructor. Creates a new active learning agent that
         uses Q-learning to decide which actions to take
@@ -91,13 +93,15 @@ class QLearningAgent:
         # Corrected from the book, we check if the last action was none i.e. no prev state or a terminal state
         if a is not None:
             Nsa[s, a] += 1
-            Q[s, a] += alpha(Nsa[s, a]) * (r + gamma * max(Q[s1, a1] for a1 in actions_in_state(s1)) - Q[s, a])
+            Q[s, a] += alpha(Nsa[s, a]) * (r + gamma * max(Q[s1, a1]
+                                                           for a1 in actions_in_state(s1)) - Q[s, a])
         # Update for next iteration
         if s in terminals:
             self.s = self.a = self.r = None
         else:
             self.s, self.r = s1, r1
-            self.a = argmax(actions_in_state(s1), key=lambda a1: self.f(Q[s1, a1], Nsa[s1, a1]))
+            self.a = argmax(actions_in_state(
+                s1), key=lambda a1: self.f(Q[s1, a1], Nsa[s1, a1]))
         return self.a
 
     def update_state(self, percept):
@@ -108,7 +112,7 @@ class QLearningAgent:
         return percept
 
 
-def process_data_q(agent_program, max_episodes, max_iters_per_episode, states_to_graph):
+def process_data_q(env, agent_program, max_episodes, max_iters_per_episode, states_to_graph, problem_id):
     """
     Plots the utility estimates for each state in the LochLomondEnv.
     Returns the results collected from run_n_trials for further
@@ -120,15 +124,18 @@ def process_data_q(agent_program, max_episodes, max_iters_per_episode, states_to
     iters = np.zeros((max_episodes,), dtype=np.int32)
     # Keeps track of the amount of times the agent reached the goal
     num_goal_reached = np.zeros((max_episodes,), dtype=np.int32)
+    print(num_goal_reached)
     graphs = {state: [] for state in states_to_graph}
     # Run no_of_iterations amount of episodes
     for i in range(1, max_episodes+1):
         # Collect the rewards and iteration count for the current episode
-        temp_rewards, iters[i-1], goal = run_single_trial(env, agent_program, max_iters_per_episode, REWARD_HOLE)
+        temp_rewards, iters[i-1], goal = run_single_trial(
+            env, agent_program, max_iters_per_episode, REWARD_HOLE)
         # Compute the mean reward for the episode
         mean_rewards[i-1] = np.mean(temp_rewards)
         if goal:
             num_goal_reached[i-1] = 1
+            print(num_goal_reached)
         U = defaultdict(lambda: -1000.)
         # Collect all the utility values in a dictionary from the current trial,
         # updating the values if a higher utility has been found
@@ -141,21 +148,16 @@ def process_data_q(agent_program, max_episodes, max_iters_per_episode, states_to
             graphs[state].append((i, U[state]))
     # Plot the graph of mean rewards (performance measure) against episode number
     # Compute the mean vector from the results and the covariance matrix
-    draw_mean_rewards(mean_rewards, max_episodes)
+    #draw_mean_rewards(mean_rewards, max_episodes, "Q-Learning", problem_id)
     # Compute the covariance of the mean rewards
     cov_rewards = np.cov(mean_rewards)
     # Plot the utility of each state on the graph using a separate colour
     # for each state
-    draw_utility_estimate_graph(graphs)    
+    #draw_utility_estimate_graph(graphs)
     # Write to the open file, some statistics relating to the trial for
     # further analysis
-    file = open("out_qagent_{}.txt".format(PROBLEM_ID), "w")
-    write_to_file_results(file, mean_rewards, PROBLEM_ID,
-                          REWARD_HOLE, max_episodes, max_iters_per_episode)
+    file = open("out_qagent_{}.txt".format(problem_id), "w")
+    write_to_file_results(file, mean_rewards, problem_id,
+                          REWARD_HOLE, max_episodes, max_iters_per_episode, iters, num_goal_reached)
     write_goal_episodes(file, num_goal_reached, max_episodes)
     file.close()
-
-
-q_learning_agent = QLearningAgent(100, 50, alpha=lambda n: 1./4+n)
-states = [i for i in range(64)]
-process_data_q(q_learning_agent, 350, 250, states)

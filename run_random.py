@@ -33,7 +33,7 @@ class RandomAgent:
     Class to represent an agent which takes random actions in order
     to attempt to try and solve the LochLomondEnv problem
     """
-
+    
     def __call__(self, percept):
         """
         Agent program, returns a random action to be taken
@@ -41,7 +41,7 @@ class RandomAgent:
         return env.action_space.sample()
 
 
-def process_data_random(agent_program, max_episodes, max_iter_per_episode, reward_hole):
+def process_data_random(envir, agent_program, max_episodes, max_iter_per_episode, reward_hole, problem_id):
     """
     Solves the problem using the agent program passed in as a parameter
     """
@@ -55,16 +55,18 @@ def process_data_random(agent_program, max_episodes, max_iter_per_episode, rewar
     # count for data analysis
     for i in range(max_episodes):
         temp_rewards, iters[i], reached_goal = run_single_trial(
-            env, agent_program, max_iter_per_episode, REWARD_HOLE)
+            envir, agent_program, max_iter_per_episode, REWARD_HOLE)
 
         mean_rewards[i] = np.mean(temp_rewards)
         if reached_goal:
             num_goal[i] = 1
 
     file = open("out_random_{}.txt".format(PROBLEM_ID), "w")
-    write_to_file_results(file, mean_rewards, PROBLEM_ID,
-                          REWARD_HOLE, max_episodes, max_iter_per_episode)
+    
+    term_states = np.nonzero(num_goal)[0]
+    write_to_file_results(file, mean_rewards, problem_id,
+                          REWARD_HOLE, max_episodes, max_iter_per_episode, iters, term_states)
 
     write_goal_episodes(file, num_goal, max_episodes)
-    draw_mean_rewards(mean_rewards, max_episodes)
+    #draw_mean_rewards(mean_rewards, max_episodes, "Random", problem_id)
     file.close()

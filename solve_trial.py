@@ -24,21 +24,18 @@ def run_single_trial(env, agent_program, max_iters_per_episode, reward_hole):
         # the grid position and the reward
         percept = (observation, reward)
         action = agent_program(percept)
+        rewards.append(reward)
         observation, reward, done, info = env.step(action)
         iters += 1
-        # Collect reward for being in the current state
-        if not done:
+        if done and reward == reward_hole:
             rewards.append(reward)
-        # Collect the reward for falling in the hole
-        if done and reward == reward_hole and not temp_done:
-            temp_done = True
-            rewards.append(reward)
+            break
+
         # Take the action specified in the agent program (The Q-Learning algorithm)
         # We are in a goal state
         if done and reward == +1.0:
-            iters += 1
-            print("I've reached the goal!")
             reached_goal = True
+            rewards.append(reward)
             break
     
     return (rewards, iters, reached_goal)
