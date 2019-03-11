@@ -124,7 +124,6 @@ def process_data_q(env, agent_program, max_episodes, max_iters_per_episode, stat
     iters = np.zeros((max_episodes,), dtype=np.int32)
     # Keeps track of the amount of times the agent reached the goal
     num_goal_reached = np.zeros((max_episodes,), dtype=np.int32)
-    print(num_goal_reached)
     graphs = {state: [] for state in states_to_graph}
     # Run no_of_iterations amount of episodes
     for i in range(1, max_episodes+1):
@@ -135,7 +134,7 @@ def process_data_q(env, agent_program, max_episodes, max_iters_per_episode, stat
         mean_rewards[i-1] = np.mean(temp_rewards)
         if goal:
             num_goal_reached[i-1] = 1
-            print(num_goal_reached)
+
         U = defaultdict(lambda: -1000.)
         # Collect all the utility values in a dictionary from the current trial,
         # updating the values if a higher utility has been found
@@ -147,13 +146,12 @@ def process_data_q(env, agent_program, max_episodes, max_iters_per_episode, stat
         for state in states_to_graph:
             graphs[state].append((i, U[state]))
     # Plot the graph of mean rewards (performance measure) against episode number
-    # Compute the mean vector from the results and the covariance matrix
-    #draw_mean_rewards(mean_rewards, max_episodes, "Q-Learning", problem_id)
+    draw_mean_rewards(mean_rewards, max_episodes, "Q-Learning", problem_id)
     # Compute the covariance of the mean rewards
     cov_rewards = np.cov(mean_rewards)
     # Plot the utility of each state on the graph using a separate colour
     # for each state
-    #draw_utility_estimate_graph(graphs)
+    draw_utility_estimate_graph(graphs, problem_id)
     # Write to the open file, some statistics relating to the trial for
     # further analysis
     file = open("out_qagent_{}.txt".format(problem_id), "w")

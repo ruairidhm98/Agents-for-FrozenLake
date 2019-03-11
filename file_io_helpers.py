@@ -31,8 +31,9 @@ def write_to_file_results(file, mean_rewards, problem_id, reward_hole, max_episo
     Writes to the file the results collected from running episodes
     """
     fastest_iters = None
+    goal_states_reached = np.nonzero(term_states)[0]
     if len(term_states) > 0:
-        fastest_iters = np.argmin(term_states)
+        fastest_iters = iters[np.argmin(goal_states_reached)]
     file.write("Problem ID:                                {}\n".format(problem_id))
     file.write("Reward Hole:                               {}\n".format(reward_hole))
     file.write("Number of Episodes:                        {}\n".format(max_episodes))

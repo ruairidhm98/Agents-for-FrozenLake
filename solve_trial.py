@@ -30,7 +30,6 @@ def run_single_trial(env, agent_program, max_iters_per_episode, reward_hole):
         if done and reward == reward_hole:
             rewards.append(reward)
             break
-
         # Take the action specified in the agent program (The Q-Learning algorithm)
         # We are in a goal state
         if done and reward == +1.0:

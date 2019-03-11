@@ -1,0 +1,22 @@
+Problem ID:                                3
+Reward Hole:                               -5.0
+Number of Episodes:                        250
+Max Number of Iterations per Episode:      250
+Max Number of Iterations from Episodes:    250
+Min Number of Iterations from Episodes:    2
+Minimum Number of Steps to Reach the Goal: 6
+Covariance of Rewards:                     0.11819248395650023
+Maximum Mean Reward:                       0.07142857142857142
+Minimum Mean Reward:                       -1.6666666666666667
+Number of Times The Agent Reached The Goal: 103/250
+Episodes Where Goal Was Reached: 6, 12, 29, 46, 73, 75, 77, 83, 91, 95, 96,
+                                   97, 98, 100, 103, 105, 106, 109, 113, 115, 117,
+                                   119, 120, 121, 123, 125, 127, 129, 130, 132, 133,
+                                   135, 136, 138, 139, 140, 144, 145, 146, 148, 150,
+                                   152, 154, 156, 158, 159, 160, 161, 162, 166, 168,
+                                   169, 175, 176, 178, 179, 181, 182, 184, 185, 187,
+                                   188, 190, 191, 194, 196, 199, 202, 204, 205, 209,
+                                   210, 211, 214, 215, 217, 218, 219, 220, 221, 224,
+                                   225, 226, 227, 228, 229, 230, 231, 232, 233, 234,
+                                   235, 236, 238, 240, 241, 242, 243, 245, 246, 247,
+                                   248, 249,

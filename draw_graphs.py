@@ -20,7 +20,7 @@ def draw_mean_rewards(rewards, num_episodes, agent, problem_id):
     plt.show()
 
 
-def draw_utility_estimate_graph(graphs):
+def draw_utility_estimate_graph(graphs, problem_id):
     """
     Plots the Utilities for each state after the agent
     has run a number of trials
@@ -30,7 +30,7 @@ def draw_utility_estimate_graph(graphs):
         plt.plot(state_x, state_y, label=str(state))
     plt.ylim([-2.6, 2.6])
     plt.grid(True)
-    plt.title("Estimated Utility Against Episode Count")
+    plt.title("Estimated Utility Against Episode Count\nProblem ID: {}".format(problem_id))
     plt.Text("Each colour represents a state in the Graph")
     plt.xlabel('Iterations')
     plt.ylabel('Utility')

@@ -56,17 +56,13 @@ def process_data_random(envir, agent_program, max_episodes, max_iter_per_episode
     for i in range(max_episodes):
         temp_rewards, iters[i], reached_goal = run_single_trial(
             envir, agent_program, max_iter_per_episode, REWARD_HOLE)
-
         mean_rewards[i] = np.mean(temp_rewards)
         if reached_goal:
             num_goal[i] = 1
-
-    file = open("out_random_{}.txt".format(PROBLEM_ID), "w")
-    
+    file = open("out_random_{}.txt".format(problem_id), "w")
     term_states = np.nonzero(num_goal)[0]
     write_to_file_results(file, mean_rewards, problem_id,
                           REWARD_HOLE, max_episodes, max_iter_per_episode, iters, term_states)
-
     write_goal_episodes(file, num_goal, max_episodes)
-    #draw_mean_rewards(mean_rewards, max_episodes, "Random", problem_id)
+    draw_mean_rewards(mean_rewards, max_episodes, "Random", problem_id)
     file.close()
