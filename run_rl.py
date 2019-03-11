@@ -177,6 +177,6 @@ def graph_utility_estimates_q(agent_program, no_of_iterations, states_to_graph):
 
 q_learning_agent = QLearningAgent(5, 10, alpha=lambda n: 1./(1+n))
 states = [i for i in range(64)]
-graph_utility_estimates_q(q_learning_agent, 1000, states)
+graph_utility_estimates_q(q_learning_agent, 100, states)
 print(q_learning_agent.Q.items())
 file.close()

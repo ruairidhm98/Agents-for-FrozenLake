@@ -4,3 +4,6 @@
 # Cached files
 *.pyc
 __pycache__/
+
+# Output files
+out_*.txt
