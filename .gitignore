@@ -3,7 +3,7 @@
 
 # Cached files
 *.pyc
-__pycache__/
+__pycache__
 
 # Output files
 out_*.txt

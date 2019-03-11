@@ -105,7 +105,21 @@ class QLearningAgent:
         """
         return percept
 
-
+def write_to_file(observation, action, reward):
+    """
+    Helper function, writes to the file result of the current
+    iteration
+    """
+    actions = {
+        0: 'Left',
+        1: 'Down',
+        2: 'Right',
+        3: 'Up'
+    }
+    file.write("Observation: {}\n".format(observation))
+    file.write("Action:      {}\n".format(actions[action]))
+    file.write("Reward:      {}\n".format(reward))
+    
 def run_n_trials(agent_program, max_iters_per_episode, episode):
     """
     Execute trial for given agent_program and mdp. 
@@ -116,7 +130,7 @@ def run_n_trials(agent_program, max_iters_per_episode, episode):
     to navigate successfully
     """
     rewards = []
-    iters = 1
+    iters = 0
     # Keep trying until we have found the goal state
     file.write("Episode {}\n".format(episode))
     file.write("-----------------------------------------------\n")
@@ -128,22 +142,26 @@ def run_n_trials(agent_program, max_iters_per_episode, episode):
         # the grid position and the reward
         percept = (observation, reward)
         action = agent_program(percept);
-        file.write("Observation: {}\n".format(observation))
-        file.write("Action:      {}\n".format(action))
-        file.write("Reward:      {}\n".format(reward))
+        write_to_file(observation, action, reward)
         observation, reward, done, info = env.step(action)
         iters += 1
         rewards.append(reward)
         # We have fell in a hole, we need to try again
         if done and reward == -1.0:
             iters += 1
+            file.write("---------------\n")
+            write_to_file(observation, action, reward)
             file.write("Reached a hole. Give up!\n")
+            file.write("---------------\n")
             break
         # Take the action specified in the agent program (The Q-Learning algorithm)
         # We are in a goal state
         if done and reward == +1.0:
             iters += 1
+            file.write("---------------\n")
+            write_to_file(observation, action, reward)
             file.write("Reached the Goal!\n")
+            file.write("---------------\n")
             break
         # Move into a new state by taking an action specified in the current policy
         # the agent is following
@@ -154,7 +172,7 @@ def run_n_trials(agent_program, max_iters_per_episode, episode):
 
 def graph_utility_estimates_q(agent_program, no_of_iterations, states_to_graph):
     """
-    Plots the utility estimates
+    Plots the utility estimates for each state in the LochLomondEnv
     """
     graphs = {state: [] for state in states_to_graph}
     for iteration in range(1,no_of_iterations+1):
@@ -175,8 +193,7 @@ def graph_utility_estimates_q(agent_program, no_of_iterations, states_to_graph):
     plt.ylabel('U')
     plt.show()
 
-q_learning_agent = QLearningAgent(5, 10, alpha=lambda n: 1./(1+n))
+q_learning_agent = QLearningAgent(5, 10, alpha=lambda n: 1./(4+n))
 states = [i for i in range(64)]
-graph_utility_estimates_q(q_learning_agent, 100, states)
-print(q_learning_agent.Q.items())
+graph_utility_estimates_q(q_learning_agent, 1000, states)
 file.close()
