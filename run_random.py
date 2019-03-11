@@ -39,7 +39,7 @@ class RandomAgent:
     to attempt to try and solve the LochLomondEnv problem
     """
 
-    def __call__(self):
+    def __call__(self, param):
         """
         Agent program, returns a random action to be taken
         """
@@ -62,13 +62,16 @@ def process_data_random(agent_program, max_episodes, max_iter_per_episode, rewar
         temp_rewards, iters[i], reached_goal = run_single_trial(
             env, agent_program, reward_hole, max_iter_per_episode)
 
-        mean_rewards = np.mean(temp_rewards)
+        mean_rewards[i] = np.mean(temp_rewards)
         if reached_goal:
             num_goal[i] = 1
 
     file = open("out_random_{}.txt".format(PROBLEM_ID), "w")
     file.write(
         "Reached The Goal State: {0}/{1}".format(num_goal, max_episodes))
-    
-    write_goal_episodes(rand_file, num_goal)
+
+    write_goal_episodes(rand_file, num_goal, max_episodes)
     draw_mean_rewards(mean_rewards, max_episodes)
+
+random_agent = RandomAgent()
+process_data_random(random_agent, 100, 250, 0.0)
