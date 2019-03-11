@@ -10,8 +10,9 @@ import matplotlib.pyplot as plt
 from run_simple import SimpleAgent
 from uofgsocsai import LochLomondEnv
 from run_random import RandomAgent, solve
-from run_rl import QLearningAgent, run_n_trials
 from simple_helpers import my_best_first_graph_search
+from run_rl import QLearningAgent, run_n_trials, graph_utility_estimates_q
+
 
 # Get the PROBLEM_ID from command line input
 if len(sys.argv) == 2:
@@ -43,4 +44,5 @@ simple_agent = SimpleAgent(PROBLEM_ID)
 Collects and prints the results for the Q-learning Agent
 """
 q_learning_agent = QLearningAgent(5, 2, alpha=None)
-solve_and_display(q_learning_agent, 10000, 100, -1.0, run_n_trials)
+states = [i for i in range(64)]
+graph_utility_estimates_q(q_learning_agent, 100, states)

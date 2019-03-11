@@ -66,12 +66,12 @@ def solve(agent_program, max_episodes, max_iter_per_episode, reward_hole):
             # We have reached a hole, exit the current episode
             if done and reward == 0.0:
                 file.write("Reached a hole. Give up!\n")
-                #break
+                break
             # We have reached the goal, exit the current
             # episode
             if done and reward == +1.0:
                 file.write("Reached the Goal!\n")
-                #break
+                break
             iters[i] += 1
 
     return (rewards, iters)
