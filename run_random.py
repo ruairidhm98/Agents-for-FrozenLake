@@ -8,7 +8,11 @@ and standard deviation of the time is printed to the stdout
 import sys
 import numpy as np
 from pprint import pprint
+import matplotlib.pyplot as plt
+from solve import run_single_trial
 from uofgsocsai import LochLomondEnv
+from draw_graphs import draw_mean_rewards
+from file_io_helpers import write_goal_episodes
 
 # Reads command line argument and stores # in PROBLEM_ID,
 # to specify the problem if this hasnt been provided, then
@@ -18,9 +22,16 @@ if len(sys.argv) == 2:
 else:
     PROBLEM_ID = 0
 
+REWARD_HOLE = 0.0
+
+rand_file = open("out_random_{}.txt".format(PROBLEM_ID), "w")
+rand_file.write("Problem ID: {}\n".format(PROBLEM_ID))
+rand_file.write("Reward Hole: {}\n".format(REWARD_HOLE))
+
 # Reset the random generator to a known state (for reproducability)
 np.random.seed(12)
 env = LochLomondEnv(PROBLEM_ID, is_stochastic=True, reward_hole=0.0)
+
 
 class RandomAgent:
     """
@@ -34,45 +45,30 @@ class RandomAgent:
         """
         return env.action_space.sample()
 
-def solve(agent_program, max_episodes, max_iter_per_episode, reward_hole):
+
+def process_data_random(agent_program, max_episodes, max_iter_per_episode, reward_hole):
     """
-    Function which attempts to solve the LochLomondEnv
-    problem based on the RandomAgent definition.
-    Returns the rewards and iteration count for
-    each episode
+    Solves the problem using the agent program passed in as a parameter
     """
-    # Keeps track of all the rewards collected in
-    # each episode and the iteration count
-    rewards = [[] for i in range(max_episodes)]
-    iters = [1 for i in range(max_episodes)]
-    file = open("out_random_{}_trials".format(PROBLEM_ID), "w")
-    # Iterate over the episodes
+    # Keep track of the mean reward collected in each episode
+    mean_rewards = np.zeros((max_episodes), dtype=np.float64)
+    # Keep track of the iteration count for each episode
+    iters = np.zeros((max_episodes,), dtype=np.int32)
+    # Keeps track of the times the agent reached the goal
+    num_goal = np.zeros((max_episodes,), dtype=np.int32)
+    # Run a specified number of episodes and collect the rewards and iteration
+    # count for data analysis
     for i in range(max_episodes):
-        # Reset the state of the env to the starting state
-        observation = env.reset()
-        reward = 0.0
-        done = False
-        for j in range(max_iter_per_episode):
-            # Takes a random action from the set of actions
-            action = agent_program()
-            rewards[i].append(reward)
-            if not done:
-                file.write("Observation: {}\n".format(observation))
-                file.write("Action:      {}\n".format(action))
-                file.write("Reward:      {}\n".format(reward))
-                # Obbserve and collect the rewards as well as some
-                # other meta data
-                observation, reward, done, info = env.step(action)
-            # We have reached a hole, exit the current episode
-            if done and reward == 0.0:
-                file.write("Reached a hole. Give up!\n")
-                break
-            # We have reached the goal, exit the current
-            # episode
-            if done and reward == +1.0:
-                file.write("Reached the Goal!\n")
-                break
-            iters[i] += 1
+        temp_rewards, iters[i], reached_goal = run_single_trial(
+            env, agent_program, reward_hole, max_iter_per_episode)
 
-    return (rewards, iters)
+        mean_rewards = np.mean(temp_rewards)
+        if reached_goal:
+            num_goal[i] = 1
 
+    file = open("out_random_{}.txt".format(PROBLEM_ID), "w")
+    file.write(
+        "Reached The Goal State: {0}/{1}".format(num_goal, max_episodes))
+    
+    write_goal_episodes(rand_file, num_goal)
+    draw_mean_rewards(mean_rewards, max_episodes)

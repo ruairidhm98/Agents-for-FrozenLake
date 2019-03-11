@@ -9,10 +9,10 @@ from pprint import pprint
 import matplotlib.pyplot as plt
 from run_simple import SimpleAgent
 from uofgsocsai import LochLomondEnv
-from run_random import RandomAgent, solve
+from run_rl import QLearningAgent, process_data_q
 from simple_helpers import my_best_first_graph_search
-from run_rl import QLearningAgent, run_n_trials, graph_utility_estimates_q
-
+from run_random import RandomAgent, solve, process_data_random
+from draw_graphs import draw_mean_rewards, draw_utility_estimate_graph
 
 # Get the PROBLEM_ID from command line input
 if len(sys.argv) == 2:
@@ -20,29 +20,27 @@ if len(sys.argv) == 2:
 else:
     PROBLEM_ID = 0
 
-
-def solve_and_display(agent_program, max_episodes, max_iter_per_episode, reward_hole, fn):
-    """
-    Solves the problem using the agent program and displays the results
-    """
-    rewards, iters = fn(agent_program, max_episodes, max_iter_per_episode, reward_hole)
-    iters = [i for i in range(max_iter_per_episode)]
-    
+MAX_EPISODES = 250
+MAX_ITERS_PER_EPISODE = 250
+REWARD_HOLE_DEFAULT = 0.0
+REWARD_HOLE_Q = -5.00
 
 """
-Collects and prints the results for the Random Agent
+Collects and prints the results for the Random Agent and draws the graphs
 """
 random_agent = RandomAgent()
-solve_and_display(random_agent, 10, 100, 0.0, solve)
+process_data_random(random_agent, MAX_EPISODES, MAX_ITERS_PER_EPISODE, REWARD_HOLE_DEFAULT)
 """
-Collects and prints the results for the Simple Agent
+Collects and prints the results for the Simple Agent and draws the graphs
 """
 simple_agent = SimpleAgent(PROBLEM_ID)
 
-
 """
-Collects and prints the results for the Q-learning Agent
+Collects and prints the results for the Q-learning Agent and draws the graphs.
+Draws:
+    Mean Reward Graph vs Episode Number
+    Utility Values in each State against Episode Number
 """
 q_learning_agent = QLearningAgent(5, 2, alpha=None)
 states = [i for i in range(64)]
-graph_utility_estimates_q(q_learning_agent, 100, states)
+process_data_q(q_learning_agent, MAX_EPISODES, MAX_ITERS_PER_EPISODE)

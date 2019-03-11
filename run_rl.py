@@ -8,7 +8,10 @@ from collections import defaultdict
 import numpy as np
 import matplotlib.pyplot as plt
 from utils import argmax
+from solve import run_single_trial
 from uofgsocsai import LochLomondEnv
+from file_io_helpers import write_goal_episodes, write_to_file_results
+from draw_graphs import draw_mean_rewards, draw_utility_estimate_graph
 
 # Read in command line argument to find the problem id
 if len(sys.argv) == 2:
@@ -17,10 +20,8 @@ else:
     PROBLEM_ID = 0
 
 REWARD_HOLE = -5.00
-file = open("out_qagent_{}_epsiodes.txt".format(PROBLEM_ID), "w")
 env = LochLomondEnv(PROBLEM_ID, is_stochastic=True, reward_hole=REWARD_HOLE)
-file.write("Problem ID: {}\n".format(PROBLEM_ID))
-file.write("Reward Hole: {}\n".format(REWARD_HOLE))
+
 
 class QLearningAgent:
     """
@@ -41,10 +42,10 @@ class QLearningAgent:
         self.terminals = [row*8 + col]
         self.all_act = [act for act in range(env.action_space.n)]
         # iteration limit in exploration function
-        self.Ne, self.Rplus = Ne, Rplus
         # large value to assign before iteration limit
-        self.Q_table = defaultdict(float)
+        self.Ne, self.Rplus = Ne, Rplus
         self.Nsa = defaultdict(float)
+        self.Q_table = defaultdict(float)
         self.state = self.action = self.reward = None
 
         if alpha:
@@ -82,7 +83,7 @@ class QLearningAgent:
         actions_in_state = self.actions_in_state
         state, action, reward = self.state, self.action, self.reward
         # current state and reward;  s' and r'
-        s1, r1 = self.update_state(percept)
+        s1, r1 = percept
         # if prev state was a terminal state it should be updated to the reward
         if state in terminals:
             Q_table[state, None] = reward
@@ -101,94 +102,28 @@ class QLearningAgent:
                 s1), key=lambda a1: self.f(Q_table[s1, a1], Nsa[s1, a1]))
         return self.action
 
-    def update_state(self, percept):
-        """
-        To be overridden in most cases. The default case
-        assumes the percept to be of type (state, reward).
-        """
-        return percept
 
-
-def run_n_trials(agent_program, max_iters_per_episode):
-    """
-    Execute trial for given agent_program and mdp.
-    mdp should be an instance of subclass of mdp.MDP
-    Writes to a file called episode<n>.txt the results
-    of each trial, including actions taken in each state,
-    percepts etc. Returns the number of rewards collected
-    in each iteration, the number of iterations it took to
-    either fall in a hole or each the goal to navigate
-    successfully to the goal and a boolean indicating if the
-    goal was reached
-    """
-    rewards = []
-    iters = 0
-    reached_goal = False
-    # Keep trying until we have found the goal state
-    observation = env.reset()
-    reward = 0.0
-    for i in range(max_iters_per_episode):
-        # Take in new information from our new state such as
-        # the grid position and the reward
-        percept = (observation, reward)
-        action = agent_program(percept)
-        observation, reward, done, info = env.step(action)
-        iters += 1
-        rewards.append(reward)
-        # We have fell in a hole, we need to try again
-        if done and reward == REWARD_HOLE:
-            iters += 1
-            break
-        # Take the action specified in the agent program (The Q-Learning algorithm)
-        # We are in a goal state
-        if done and reward == +1.0:
-            iters += 1
-            reached_goal = True
-            break
-
-    return (np.asarray(rewards, dtype=np.float64), reached_goal)
-
-
-def draw_mean_rewards(rewards, num_episodes):
-    """
-    Draws the graph of the mean reward against
-    the episode number
-    """
-    # Compute the mean vector from the results and the covariance matrix
-    cov_rewards = np.cov(rewards)
-    file.write("Covariance of Rewards: {}\n".format(cov_rewards))
-    episode_axis = [i for i in range(num_episodes)]
-    # Plot the mean vector against iteration count
-    plt.rc('figure', figsize=(8.0, 4.0), dpi=140)
-    fig = plt.figure()
-    fig.suptitle("Mean reward for each episode against iteration count")
-    ax = fig.add_subplot(1, 1, 1)
-    ax.plot(episode_axis, rewards, label='k5', marker='.')
-    ax.set_xlabel("Episode Number")
-    ax.set_ylabel("Mean Reward")
-    ax.grid(True)
-    plt.show()
-
-
-def process_data(agent_program, no_of_iterations, states_to_graph):
+def process_data_q(agent_program, max_episodes, max_iters_per_episode, states_to_graph):
     """
     Plots the utility estimates for each state in the LochLomondEnv.
     Returns the results collected from run_n_trials for further
     use
     """
     # Keeps track of all the mean reward from each epsiode, use numpy for efficiency purposes
-    mean_rewards = np.zeros((no_of_iterations,), dtype=np.float64)
-    # The maximum of number of iterations the agent can do in each episode
-    max_iters_per_episode = 100
+    mean_rewards = np.zeros((max_episodes,), dtype=np.float64)
+    # Keeps track of the iterations per episode
+    iters = np.zeros((max_episodes,), dtype=np.int32)
     # Keeps track of the amount of times the agent reached the goal
-    num_goal_reached = np.zeros((no_of_iterations,), dtype=np.int32)
+    num_goal_reached = np.zeros((max_episodes,), dtype=np.int32)
     graphs = {state: [] for state in states_to_graph}
     # Run no_of_iterations amount of episodes
-    for iteration in range(1, no_of_iterations+1):
+    for i in range(1, max_episodes+1):
         # Collect the rewards and iteration count for the current episode
-        temp_rewards, goal = run_n_trials(agent_program, max_iters_per_episode)
+        temp_rewards, iters[i-1], goal = run_single_trial(
+            env, agent_program, REWARD_HOLE, max_iters_per_episode)
+
         if goal:
-            num_goal_reached[iteration-1] = 1
+            num_goal_reached[i-1] = 1
         U = defaultdict(lambda: -1000.)
         # Collect all the utility values in a dictionary from the current trial,
         # updating the values if a higher utility has been found
@@ -196,49 +131,28 @@ def process_data(agent_program, no_of_iterations, states_to_graph):
             state, action = state_action
             if U[state] < value:
                 U[state] = value
-        mean_rewards[iteration-1] = np.mean(temp_rewards)
+        mean_rewards[i-1] = np.mean(temp_rewards)
 
         for state in states_to_graph:
-            graphs[state].append((iteration, U[state]))
-
+            graphs[state].append((i, U[state]))
     # Plot the graph of mean rewards (performance measure) against episode number
-    draw_mean_rewards(mean_rewards, no_of_iterations)
-
+    # Compute the mean vector from the results and the covariance matrix
+    draw_mean_rewards(mean_rewards, max_episodes)
+    # Compute the covariance of the mean rewards
+    cov_rewards = np.cov(mean_rewards)
     # Write to the open file, some statistics relating to the trial for
     # further analysis
-    goal_state = np.where(num_goal_reached == 1)
-    num_goals = len(goal_state[0])
-    print(goal_state)
-    print(num_goals)
-    file.write("Number of Times The Agent Reached The Goal: {0}/{1}\n".format(
-        num_goals, no_of_iterations))
-    file.write("Episodes Where Goal Was Reached:")
-    # Write the episodes where the goal was reached in order to
-    # analyse if an optimal path is reached (indicated by a episode
-    # numbers that are close together consecutively)
-    for i in range(num_goals):
-        file.write(" {},".format(goal_state[0][i]))
-        if i % 9 == 0 and i != num_goals-1 and i > 0:
-            file.write("\n")
-    file.write("\n")
-    file.write("Maximum Mean Reward: {}\n".format(np.max(mean_rewards)))
-    file.write("Minimum Mean Reward: {}\n".format(np.min(mean_rewards)))
-    # Plot the utility of each state on the grpah using a separate colour
+    goal_states = np.where(num_goal_reached == 1)
+    # Plot the utility of each state on the graph using a separate colour
     # for each state
-    for state, value in graphs.items():
-        state_x, state_y = zip(*value)
-        plt.plot(state_x, state_y, label=str(state))
-    # Set some graph meta data
-    plt.ylim([-2.6, 2.6])
-    plt.grid(True)
-    plt.title("Estimated Utility Against Episode Count")
-    plt.legend(loc='lower right')
-    plt.xlabel('Iterations')
-    plt.ylabel('Utility')
-    plt.show()
+    draw_utility_estimate_graph(graphs)
+    # Writes to the file statistics relating to the trials/episodes
+    file = open("out_qagent_{}.txt".format(PROBLEM_ID), "w")
+    write_to_file_results(file, mean_rewards, PROBLEM_ID, REWARD_HOLE)
+    write_goal_episodes(file, goal_states, max_episodes)
+    file.close()
 
 
-q_learning_agent = QLearningAgent(50, 40)
+q_learning_agent = QLearningAgent(100, 100)
 states = [i for i in range(64)]
-process_data(q_learning_agent, 250, states)
-file.close()
+process_data_q(q_learning_agent, 350, 250, states)
