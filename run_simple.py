@@ -16,7 +16,6 @@ if len(sys.argv) == 2:
 else:
     PROBLEM_ID = 0
 
-env = LochLomondEnv(problem_id=PROBLEM_ID, is_stochastic=False, reward_hole=0.0)
 
 class SimpleAgent:
     """

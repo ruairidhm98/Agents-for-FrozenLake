@@ -6,6 +6,7 @@ plotted as a line chart and the mean time taken for each episode
 and standard deviation of the time is printed to the stdout
 """
 import sys
+import random
 import numpy as np
 import matplotlib.pyplot as plt
 from solve_trial import run_single_trial
@@ -25,7 +26,6 @@ REWARD_HOLE = 0.0
 
 # Reset the random generator to a known state (for reproducability)
 np.random.seed(12)
-env = LochLomondEnv(problem_id=PROBLEM_ID, is_stochastic=True, reward_hole=REWARD_HOLE)
 
 
 class RandomAgent:
@@ -38,7 +38,7 @@ class RandomAgent:
         """
         Agent program, returns a random action to be taken
         """
-        return env.action_space.sample()
+        return random.randint(0, 3)
 
 
 def process_data_random(envir, agent_program, max_episodes, max_iter_per_episode, reward_hole, problem_id):
@@ -61,10 +61,10 @@ def process_data_random(envir, agent_program, max_episodes, max_iter_per_episode
             num_goal[i] = 1
     
     # Get the starting state and goal state indexes in order to write to file
-    start_index = np.where(env.desc == b'S')
+    start_index = np.where(envir.desc == b'S')
     row, col = start_index[0][0], start_index[1][0]
     start = "({}, {})".format(row, col)
-    end_index = np.where(env.desc == b'G')
+    end_index = np.where(envir.desc == b'G')
     row, col = end_index[0][0], end_index[1][0]
     goal = "({}, {})".format(row, col)
 
