@@ -1,3 +1,8 @@
+"""
+Script which drawst the graphs using the rewards collected from each of the agents
+episodes
+"""
+
 import matplotlib.pyplot as plt
 
 
@@ -7,7 +12,6 @@ def draw_mean_rewards(rewards, num_episodes, agent, problem_id):
     the episode number
     """
     episode_axis = [i for i in range(num_episodes)]
-    # Plot the mean vector against iteration count
     plt.rc('figure', figsize=(8.0, 4.0), dpi=140)
     fig = plt.figure()
     fig.suptitle("Mean reward for each episode against iteration count\nProblem ID: {} Agent: {}".format(problem_id, agent))

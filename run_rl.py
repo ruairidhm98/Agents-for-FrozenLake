@@ -12,13 +12,11 @@ from solve_trial import run_single_trial
 from uofgsocsai import LochLomondEnv
 from utils import argmax
 
-# Read in command line argument to find the problem id
+
 if len(sys.argv) == 2:
     PROBLEM_ID = int(sys.argv[1])
 else:
     PROBLEM_ID = 0
-
-REWARD_HOLE = -5.00
 
 
 class QLearningAgent:
@@ -39,17 +37,16 @@ class QLearningAgent:
         row, col = index[0][0], index[1][0]
         self.terminals = [row*8 + col]
         self.all_act = [act for act in range(env.action_space.n)]
-        # iteration limit in exploration function
+        # Iteration limit in exploration function
+        # Large value to assign before iteration limit
         self.Ne, self.Rplus = Ne, Rplus
-        # large value to assign before iteration limit
         self.Q = defaultdict(float)
         self.Nsa = defaultdict(float)
         self.s = self.a = self.r = None
-
         if alpha:
             self.alpha = alpha
         else:
-            self.alpha = lambda n: 1./(1+n)
+            self.alpha = lambda n: 60./(59+n)
 
     def f(self, u, n):
         """
@@ -90,8 +87,7 @@ class QLearningAgent:
         # Corrected from the book, we check if the last action was none i.e. no prev state or a terminal state
         if a is not None:
             Nsa[s, a] += 1
-            Q[s, a] += alpha(Nsa[s, a]) * (r + gamma * max(Q[s1, a1]
-                                                           for a1 in actions_in_state(s1)) - Q[s, a])
+            Q[s, a] += alpha(Nsa[s, a]) * (r + gamma * argmax(Q[s1, a1] for a1 in actions_in_state(s1)) - Q[s, a])
         # Update for next iteration
         if s in terminals:
             self.s = self.a = self.r = None
@@ -109,7 +105,7 @@ class QLearningAgent:
         return percept
 
 
-def process_data_q(env, agent_program, max_episodes, max_iters_per_episode, states_to_graph, problem_id):
+def process_data_q(env, agent_program, max_episodes, max_iters_per_episode, states_to_graph, problem_id, reward_hole):
     """
     Plots the utility estimates for each state in the LochLomondEnv.
     Returns the results collected from run_n_trials for further
@@ -126,12 +122,10 @@ def process_data_q(env, agent_program, max_episodes, max_iters_per_episode, stat
     for i in range(max_episodes):
         # Collect the rewards and iteration count for the current episode
         temp_rewards, iters[i], goal = run_single_trial(
-            env, agent_program, max_iters_per_episode, REWARD_HOLE)
+            env, agent_program, max_iters_per_episode, reward_hole)
         # Compute the mean reward for the episode
         mean_rewards[i] = np.mean(temp_rewards)
-        if goal:
-            num_goal_reached[i] = 1
-
+        if goal: num_goal_reached[i] = 1
         U = defaultdict(lambda: -1000.)
         # Collect all the utility values in a dictionary from the current trial,
         # updating the values if a higher utility has been found
@@ -158,6 +152,7 @@ def process_data_q(env, agent_program, max_episodes, max_iters_per_episode, stat
     # further analysis
     file = open("out_qagent_{}.txt".format(problem_id), "w")
     write_to_file_init_states(file, problem_id, start, goal)
-    write_to_file_results(file, mean_rewards, REWARD_HOLE, max_episodes, max_iters_per_episode, iters, num_goal_reached)
+    write_to_file_results(file, mean_rewards, reward_hole,
+                          max_episodes, max_iters_per_episode, iters, num_goal_reached)
     write_goal_episodes(file, num_goal_reached, max_episodes)
     file.close()

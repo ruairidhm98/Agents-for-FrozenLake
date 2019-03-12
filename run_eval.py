@@ -1,6 +1,7 @@
 """
 Script which runs the agents, collects results and plots graphs using
-matplotlib and prints necessary values to the stdout using
+matplotlib and prints necessary values to the stdout using. Takes as command
+line argument the problem ID of the environment.
 """
 import sys
 import matplotlib
@@ -23,27 +24,31 @@ if len(sys.argv) == 2:
 else:
     PROBLEM_ID = 0
 
-
-MAX_EPISODES = 250
-MAX_ITERS_PER_EPISODE = 250
+MAX_EPISODES = 10
+MAX_ITERS_PER_EPISODE = 500
 REWARD_HOLE_DEFAULT = 0.0
-REWARD_HOLE_Q = -5.00
+REWARD_HOLE_Q = -10.00
+
+#env_random = LochLomondEnv(problem_id=PROBLEM_ID, is_stochastic=True, reward_hole=REWARD_HOLE_DEFAULT)
+#env_simple = LochLomondEnv(problem_id=PROBLEM_ID, is_stochastic=False, reward_hole=REWARD_HOLE_DEFAULT)
+env_qlearn = LochLomondEnv(problem_id=PROBLEM_ID, is_stochastic=True, reward_hole=REWARD_HOLE_Q)
+"""print(env_random.desc)
+print(env_simple.desc)
+print(env_qlearn.desc)"""
 """
 Collects and prints the results for the Random Agent and draws the graphs
 Draws:
     Mean Reward per Episode vs Episode Number
 """
-env = LochLomondEnv(problem_id=PROBLEM_ID, is_stochastic=True, reward_hole=REWARD_HOLE_DEFAULT)
-random_agent = RandomAgent()
-process_data_random(env, random_agent, MAX_EPISODES, MAX_ITERS_PER_EPISODE, REWARD_HOLE_DEFAULT, PROBLEM_ID)
-del env
+#random_agent = RandomAgent()
+#process_data_random(env_random, random_agent, MAX_EPISODES, MAX_ITERS_PER_EPISODE, REWARD_HOLE_DEFAULT, PROBLEM_ID)
+# print(env_random.desc)
 """
 Collects and prints the results for the Simple Agent and draws the graphs
 """
-env = LochLomondEnv(problem_id=PROBLEM_ID, is_stochastic=False, reward_hole=REWARD_HOLE_DEFAULT)
-simple_agent = SimpleAgent(env)
-process_data_simple(env, simple_agent, PROBLEM_ID)
-del env
+#simple_agent = SimpleAgent(env_simple)
+#process_data_simple(env_simple, simple_agent, PROBLEM_ID)
+# print(env_simple.desc)
 """
 Collects and prints the results for the Q-learning Agent and draws the graphs.
 Draws:
@@ -51,7 +56,7 @@ Draws:
     Utility Values in each State against Episode Number
 """
 states = [i for i in range(64)]
-env = LochLomondEnv(problem_id=PROBLEM_ID, is_stochastic=True, reward_hole=REWARD_HOLE_Q)
-q_learning_agent = QLearningAgent(env, 10, 5, alpha=lambda n: 1./(1+n))
-process_data_q(env, q_learning_agent, MAX_EPISODES, MAX_ITERS_PER_EPISODE, states, PROBLEM_ID)
-del env
+q_learning_agent = QLearningAgent(env_qlearn, 250, 15, alpha=lambda n: 3*n)
+process_data_q(env_qlearn, q_learning_agent, MAX_EPISODES,
+               MAX_ITERS_PER_EPISODE, states, PROBLEM_ID, REWARD_HOLE_Q)
+print(q_learning_agent.Q.items())
