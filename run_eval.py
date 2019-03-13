@@ -9,7 +9,7 @@ import numpy as np
 from pprint import pprint
 import matplotlib.pyplot as plt
 from uofgsocsai import LochLomondEnv
-from solve_trial import run_single_trial
+from solve_trial import run_single_trial_q
 from run_rl import QLearningAgent, process_data_q
 from run_simple import SimpleAgent, process_data_simple
 from run_random import RandomAgent, process_data_random
@@ -24,14 +24,53 @@ if len(sys.argv) == 2:
 else:
     PROBLEM_ID = 0
 
-MAX_EPISODES = 10
-MAX_ITERS_PER_EPISODE = 500
+GAMMA = 0.9
+MAX_EPISODES = 1000
+MAX_ITERS_PER_EPISODE = 250
 REWARD_HOLE_DEFAULT = 0.0
-REWARD_HOLE_Q = -10.00
+REWARD_HOLE_Q = -3.00
 
-#env_random = LochLomondEnv(problem_id=PROBLEM_ID, is_stochastic=True, reward_hole=REWARD_HOLE_DEFAULT)
-#env_simple = LochLomondEnv(problem_id=PROBLEM_ID, is_stochastic=False, reward_hole=REWARD_HOLE_DEFAULT)
+
+env_random = LochLomondEnv(problem_id=PROBLEM_ID, is_stochastic=True, reward_hole=REWARD_HOLE_DEFAULT)
+env_simple = LochLomondEnv(problem_id=PROBLEM_ID, is_stochastic=False, reward_hole=REWARD_HOLE_DEFAULT)
 env_qlearn = LochLomondEnv(problem_id=PROBLEM_ID, is_stochastic=True, reward_hole=REWARD_HOLE_Q)
+
+start_index = np.where(env_qlearn.desc == b'S')
+row, col = start_index[0][0], start_index[1][0]
+start = row*8 + col
+end_index = np.where(env_qlearn.desc == b'G')
+row, col = end_index[0][0], end_index[1][0]
+goal = row*8 + col
+holes = np.where(env_qlearn == b'H')
+terminals = []
+for i in range(len(holes[0])):
+    row, col = holes[0][i], holes[1][i]
+    terminals.append([row*8 + col])
+
+def Rew(s):
+    if s == start: return 0.0
+    elif s == goal: return +1.0
+    elif s in terminals: return REWARD_HOLE_Q
+    else: return 0
+
+def value_iteration(epsilon=0.001):
+    "Solving an MDP by value iteration. [Fig. 17.4]"
+    U1 = dict([(s, 0) for s in range(64)])
+
+    R, T, gamma = Rew, env_qlearn.P, GAMMA
+    from pprint import pprint
+    pprint(env_qlearn.P)
+    while True:
+        U = U1.copy()
+        delta = 0
+        for s in range(64):
+            U1[s] = Rew(s) + gamma * max([sum([p * U[s1] for (p, s1, a, b) in T[s][a]])
+                                        for a in range(env_qlearn.action_space.n)])
+            delta = max(delta, abs(U1[s] - U[s]))
+        if delta < epsilon * (1 - gamma) / gamma:
+             return U
+
+#pprint(value_iteration(epsilon=0.001))
 """print(env_random.desc)
 print(env_simple.desc)
 print(env_qlearn.desc)"""
@@ -40,15 +79,13 @@ Collects and prints the results for the Random Agent and draws the graphs
 Draws:
     Mean Reward per Episode vs Episode Number
 """
-#random_agent = RandomAgent()
+#random_agent = RandomAgent(env_random)
 #process_data_random(env_random, random_agent, MAX_EPISODES, MAX_ITERS_PER_EPISODE, REWARD_HOLE_DEFAULT, PROBLEM_ID)
-# print(env_random.desc)
 """
 Collects and prints the results for the Simple Agent and draws the graphs
 """
 #simple_agent = SimpleAgent(env_simple)
 #process_data_simple(env_simple, simple_agent, PROBLEM_ID)
-# print(env_simple.desc)
 """
 Collects and prints the results for the Q-learning Agent and draws the graphs.
 Draws:
@@ -56,7 +93,8 @@ Draws:
     Utility Values in each State against Episode Number
 """
 states = [i for i in range(64)]
-q_learning_agent = QLearningAgent(env_qlearn, 250, 15, alpha=lambda n: 3*n)
+q_learning_agent = QLearningAgent(env_qlearn, 5, 10, alpha=lambda n: 3*n)
 process_data_q(env_qlearn, q_learning_agent, MAX_EPISODES,
                MAX_ITERS_PER_EPISODE, states, PROBLEM_ID, REWARD_HOLE_Q)
-print(q_learning_agent.Q.items())
+pprint(q_learning_agent.Q)
+pprint(q_learning_agent.Nsa)

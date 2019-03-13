@@ -9,7 +9,7 @@ import sys
 import random
 import numpy as np
 import matplotlib.pyplot as plt
-from solve_trial import run_single_trial
+from solve_trial import run_single_trial_random
 from uofgsocsai import LochLomondEnv
 from draw_graphs import draw_mean_rewards
 from file_io_helpers import write_goal_episodes, write_to_file_results, write_to_file_init_states
@@ -27,18 +27,19 @@ REWARD_HOLE = 0.0
 # Reset the random generator to a known state (for reproducability)
 np.random.seed(12)
 
-
 class RandomAgent:
     """
     Class to represent an agent which takes random actions in order
     to attempt to try and solve the LochLomondEnv problem
     """
-    
-    def __call__(self, percept):
+    def __init__(self, env):
+        self.env = env
+
+    def __call__(self):
         """
         Agent program, returns a random action to be taken
         """
-        return random.randint(0, 3)
+        return self.env.action_space.sample()
 
 
 def process_data_random(envir, agent_program, max_episodes, max_iter_per_episode, reward_hole, problem_id):
@@ -54,7 +55,7 @@ def process_data_random(envir, agent_program, max_episodes, max_iter_per_episode
     # Run a specified number of episodes and collect the rewards and iteration
     # count for data analysis
     for i in range(max_episodes):
-        temp_rewards, iters[i], reached_goal = run_single_trial(
+        temp_rewards, iters[i], reached_goal = run_single_trial_random(
             envir, agent_program, max_iter_per_episode, REWARD_HOLE)
         mean_rewards[i] = np.mean(temp_rewards)
         if reached_goal:
