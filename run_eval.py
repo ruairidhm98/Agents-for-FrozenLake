@@ -24,11 +24,11 @@ if len(sys.argv) == 2:
 else:
     PROBLEM_ID = 0
 
-GAMMA = 0.9
+GAMMA = 0.75
 MAX_EPISODES = 1000
 MAX_ITERS_PER_EPISODE = 250
 REWARD_HOLE_DEFAULT = 0.0
-REWARD_HOLE_Q = -3.00
+REWARD_HOLE_Q = -2.00
 
 
 env_random = LochLomondEnv(problem_id=PROBLEM_ID, is_stochastic=True, reward_hole=REWARD_HOLE_DEFAULT)
@@ -53,6 +53,26 @@ def Rew(s):
     elif s in terminals: return REWARD_HOLE_Q
     else: return 0
 
+def compare_utils(U1, U2, H1="U1     ", H2="U2       "):
+    U_diff = dict()
+    file = open("out_qagent_{}.txt".format(PROBLEM_ID), "a")
+    file.write("%s \t %s \t %s \t %s\n" % ("State   ",H1,H2,"Diff     "))
+    U_2norm = 0.0
+    U_maxnorm = -10000
+    for state in U1.keys():
+        U_diff[state] = U1[state] - U2[state]        
+        U_2norm = U_2norm + U_diff[state]**2        
+        if np.abs(U_diff[state]) > U_maxnorm:
+            U_maxnorm = np.abs(U_diff[state])
+        
+        file.write("%s: \t %+.3f \t %+.3f \t %+.5f\n" % (state,U1[state],U2[state],U_diff[state]))
+    
+    file.write("\n")    
+    file.write("Max norm: %.5f\n" % (U_maxnorm))     
+    file.write("2-norm : %.5f\n" % (U_2norm))
+    file.close()    
+    return U_diff,U_2norm,U_maxnorm
+
 def value_iteration(epsilon=0.001):
     "Solving an MDP by value iteration. [Fig. 17.4]"
     U1 = dict([(s, 0) for s in range(64)])
@@ -70,22 +90,19 @@ def value_iteration(epsilon=0.001):
         if delta < epsilon * (1 - gamma) / gamma:
              return U
 
-#pprint(value_iteration(epsilon=0.001))
-"""print(env_random.desc)
-print(env_simple.desc)
-print(env_qlearn.desc)"""
+U_vi = value_iteration(epsilon=0.001)
 """
 Collects and prints the results for the Random Agent and draws the graphs
 Draws:
     Mean Reward per Episode vs Episode Number
 """
-#random_agent = RandomAgent(env_random)
-#process_data_random(env_random, random_agent, MAX_EPISODES, MAX_ITERS_PER_EPISODE, REWARD_HOLE_DEFAULT, PROBLEM_ID)
+random_agent = RandomAgent(env_random)
+process_data_random(env_random, random_agent, MAX_EPISODES, MAX_ITERS_PER_EPISODE, REWARD_HOLE_DEFAULT, PROBLEM_ID)
 """
 Collects and prints the results for the Simple Agent and draws the graphs
 """
-#simple_agent = SimpleAgent(env_simple)
-#process_data_simple(env_simple, simple_agent, PROBLEM_ID)
+simple_agent = SimpleAgent(env_simple)
+process_data_simple(env_simple, simple_agent, PROBLEM_ID)
 """
 Collects and prints the results for the Q-learning Agent and draws the graphs.
 Draws:
@@ -94,7 +111,6 @@ Draws:
 """
 states = [i for i in range(64)]
 q_learning_agent = QLearningAgent(env_qlearn, 5, 10, alpha=lambda n: 3*n)
-process_data_q(env_qlearn, q_learning_agent, MAX_EPISODES,
+U = process_data_q(env_qlearn, q_learning_agent, MAX_EPISODES,
                MAX_ITERS_PER_EPISODE, states, PROBLEM_ID, REWARD_HOLE_Q)
-pprint(q_learning_agent.Q)
-pprint(q_learning_agent.Nsa)
+compare_utils(U_vi, U, 'Value itr','Q learning')

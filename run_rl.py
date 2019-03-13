@@ -33,8 +33,8 @@ class QLearningAgent:
         Constructor. Creates a new active learning agent that
         uses Q-learning to decide which actions to take
         """
-        self.gamma = 0.9
 
+        self.gamma = 0.75
         index = np.where(env.desc == b'G')
         holes = np.where(env.desc == b'H')
         row, col = index[0][0], index[1][0]
@@ -49,16 +49,18 @@ class QLearningAgent:
         # Large value to assign before iteration limit
         self.Ne, self.Rplus = Ne, Rplus
         # Q-values stored within a dictionary
-        self.Q = np.zeros((env.observation_space.n, env.action_space.n,), dtype=np.float64)
+        self.Q = np.zeros(
+            (env.observation_space.n, env.action_space.n,), dtype=np.float64)
         # The frequency of each state action pair represented as a
         # dictionary
-        self.Nsa = np.zeros((env.observation_space.n, env.action_space.n,), dtype=np.int32)
+        self.Nsa = np.zeros(
+            (env.observation_space.n, env.action_space.n,), dtype=np.int32)
         start = np.where(env.desc == b'S')
         row, col = start[0][0], start[1][[0]]
         self.s = row*8 + col
         self.a = None
         self.r = 0.0
-        self.alpha = lambda n: 60./(59+n)
+        self.alpha = 0.65
 
     def f(self, u, n):
         """
@@ -80,17 +82,19 @@ class QLearningAgent:
             return [None]
         else:
             return self.all_act
-    
+
     def __call__(self, action, percept, state):
         """
         The Q-learning algorithm. Updates the Q value for a particular state
         upon every iteration of the algorithm. Returns the action which the
         agent should take according to its known Q-values
         """
+        self.Nsa[state, action] += 1
         s1, r1 = percept
         predict = self.Q[s1, action]
         target = r1 + self.gamma * np.max(self.Q[s1, :])
-        self.Q[state, action] = self.Q[s1, action] + 0.86 * (target - predict)
+        self.Q[state, action] = self.Q[s1, action] + \
+            0.86 * (target - predict)
 
     def choose_action(self, state):
         """
@@ -119,17 +123,17 @@ def process_data_q(env, agent_program, max_episodes, max_iters_per_episode, stat
             env, agent_program, max_iters_per_episode, reward_hole)
         # Compute the mean reward for the episode
         mean_rewards[i] = np.mean(temp_rewards)
-        if goal: num_goal_reached[i] = 1
+        if goal:
+            num_goal_reached[i] = 1
         U = defaultdict(lambda: -1000.)
         # Collect all the utility values in a dictionary from the current trial,
         # updating the values if a higher utility has been found
         state = 0
         for iter_i in range(agent_program.Q.shape[0]):
-            for j in range(agent_program.Q.shape[1]):
-                value = agent_program.Q[iter_i,j]
-                if U[state] < value:
-                    U[state] = value
-                state += 1
+            value = np.max(agent_program.Q[iter_i, :])
+            if U[state] < value:
+                U[state] = value
+            state += 1
         for state in states_to_graph:
             graphs[state].append((i, U[state]))
     # Plot the graph of mean rewards (performance measure) against episode number

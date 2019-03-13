@@ -32,7 +32,7 @@ def draw_utility_estimate_graph(graphs, problem_id):
     for state, value in graphs.items():
         state_x, state_y = zip(*value)
         plt.plot(state_x, state_y, label=str(state))
-    plt.ylim([-2.6, 2.6])
+    plt.ylim([-4.0, 4.0])
     plt.grid(True)
     plt.title("Estimated Utility Against Episode Count\nProblem ID: {}".format(problem_id))
     plt.Text("Each colour represents a state in the Graph")
@@ -40,16 +40,3 @@ def draw_utility_estimate_graph(graphs, problem_id):
     plt.ylabel('Utility')
     plt.show()
 
-def graph_utility_estimates(agent_program, mdp, no_of_iterations, states_to_graph):
-    graphs = {state:[] for state in states_to_graph}
-    for iteration in range(1,no_of_iterations+1):
-        run_single_trial(agent_program, mdp)
-        for state in states_to_graph:
-            graphs[state].append((iteration, agent_program.U[state]))
-    for state, value in graphs.items():
-        state_x, state_y = zip(*value)
-        plt.plot(state_x, state_y, label=str(state))
-    plt.ylim([-1.2,1.2])
-    plt.legend(loc='lower right')
-    plt.xlabel('Iterations')
-    plt.ylabel('U')
