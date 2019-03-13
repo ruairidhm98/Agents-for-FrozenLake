@@ -48,12 +48,18 @@ for i in range(len(holes[0])):
     terminals.append([row*8 + col])
 
 def Rew(s):
+    """
+    Helper function, return the reward for being in state s
+    """
     if s == start: return 0.0
     elif s == goal: return +1.0
     elif s in terminals: return REWARD_HOLE_Q
     else: return 0
 
 def compare_utils(U1, U2, H1="U1     ", H2="U2       "):
+    """
+    Compares two utility tables and writes to a file the results
+    """
     U_diff = dict()
     file = open("out_qagent_{}.txt".format(PROBLEM_ID), "a")
     file.write("%s \t %s \t %s \t %s\n" % ("State   ",H1,H2,"Diff     "))
@@ -74,7 +80,10 @@ def compare_utils(U1, U2, H1="U1     ", H2="U2       "):
     return U_diff,U_2norm,U_maxnorm
 
 def value_iteration(epsilon=0.001):
-    "Solving an MDP by value iteration. [Fig. 17.4]"
+    """
+    Value iteration algorithm, used to compare the "true" utility values
+    with the one compared with the Q-agent
+    """
     U1 = dict([(s, 0) for s in range(64)])
 
     R, T, gamma = Rew, env_qlearn.P, GAMMA
