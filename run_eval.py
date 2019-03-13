@@ -6,14 +6,12 @@ line argument the problem ID of the environment.
 import sys
 import matplotlib
 import numpy as np
-from pprint import pprint
 import matplotlib.pyplot as plt
 from uofgsocsai import LochLomondEnv
 from solve_trial import run_single_trial_q
 from run_rl import QLearningAgent, process_data_q
 from run_simple import SimpleAgent, process_data_simple
 from run_random import RandomAgent, process_data_random
-from draw_graphs import draw_mean_rewards, draw_utility_estimate_graph
 
 
 # Reads command line argument and stores # in PROBLEM_ID,
@@ -24,12 +22,12 @@ if len(sys.argv) == 2:
 else:
     PROBLEM_ID = 0
 
-GAMMA = 0.75
-MAX_EPISODES = 1000
+ALPHA = 0.86
+GAMMA = 0.9
+MAX_EPISODES = 2500
 MAX_ITERS_PER_EPISODE = 250
 REWARD_HOLE_DEFAULT = 0.0
-REWARD_HOLE_Q = -2.00
-
+REWARD_HOLE_Q = -1.5
 
 env_random = LochLomondEnv(problem_id=PROBLEM_ID, is_stochastic=True, reward_hole=REWARD_HOLE_DEFAULT)
 env_simple = LochLomondEnv(problem_id=PROBLEM_ID, is_stochastic=False, reward_hole=REWARD_HOLE_DEFAULT)
@@ -47,6 +45,7 @@ for i in range(len(holes[0])):
     row, col = holes[0][i], holes[1][i]
     terminals.append([row*8 + col])
 
+
 def Rew(s):
     """
     Helper function, return the reward for being in state s
@@ -55,6 +54,7 @@ def Rew(s):
     elif s == goal: return +1.0
     elif s in terminals: return REWARD_HOLE_Q
     else: return 0
+
 
 def compare_utils(U1, U2, H1="U1     ", H2="U2       "):
     """
@@ -70,14 +70,13 @@ def compare_utils(U1, U2, H1="U1     ", H2="U2       "):
         U_2norm = U_2norm + U_diff[state]**2        
         if np.abs(U_diff[state]) > U_maxnorm:
             U_maxnorm = np.abs(U_diff[state])
-        
         file.write("%s: \t %+.3f \t %+.3f \t %+.5f\n" % (state,U1[state],U2[state],U_diff[state]))
-    
     file.write("\n")    
     file.write("Max norm: %.5f\n" % (U_maxnorm))     
     file.write("2-norm : %.5f\n" % (U_2norm))
     file.close()    
     return U_diff,U_2norm,U_maxnorm
+
 
 def value_iteration(epsilon=0.001):
     """
@@ -87,8 +86,6 @@ def value_iteration(epsilon=0.001):
     U1 = dict([(s, 0) for s in range(64)])
 
     R, T, gamma = Rew, env_qlearn.P, GAMMA
-    from pprint import pprint
-    pprint(env_qlearn.P)
     while True:
         U = U1.copy()
         delta = 0
@@ -98,6 +95,7 @@ def value_iteration(epsilon=0.001):
             delta = max(delta, abs(U1[s] - U[s]))
         if delta < epsilon * (1 - gamma) / gamma:
              return U
+
 
 U_vi = value_iteration(epsilon=0.001)
 """
@@ -119,7 +117,7 @@ Draws:
     Utility Values in each State against Episode Number
 """
 states = [i for i in range(64)]
-q_learning_agent = QLearningAgent(env_qlearn, 5, 10, alpha=lambda n: 3*n)
+q_learning_agent = QLearningAgent(env_qlearn, 5, 10, ALPHA, GAMMA)
 U = process_data_q(env_qlearn, q_learning_agent, MAX_EPISODES,
                MAX_ITERS_PER_EPISODE, states, PROBLEM_ID, REWARD_HOLE_Q)
 compare_utils(U_vi, U, 'Value itr','Q learning')

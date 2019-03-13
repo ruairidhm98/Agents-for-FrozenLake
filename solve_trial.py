@@ -1,7 +1,6 @@
 """
 Script which contains a function that runs a single trial for any of the agents
 """
-import numpy as np
 
 
 def run_single_trial_random(env, agent_program, max_iters_per_episode, reward_hole):

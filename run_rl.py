@@ -6,7 +6,7 @@ specifies the problem ID for the environment
 import sys
 from collections import defaultdict
 import numpy as np
-from draw_graphs import draw_mean_rewards, draw_utility_estimate_graph
+from draw_graphs import draw_mean_rewards
 from file_io_helpers import write_goal_episodes, write_to_file_results, write_to_file_init_states
 from process_data import get_s_h_g_states
 from uofgsocsai import LochLomondEnv
@@ -28,13 +28,13 @@ class QLearningAgent:
     its neighbors. [Figure 21.8]
     """
 
-    def __init__(self, env, Ne, Rplus, alpha):
+    def __init__(self, env, Ne, Rplus, alpha, gamma):
         """
         Constructor. Creates a new active learning agent that
         uses Q-learning to decide which actions to take
         """
 
-        self.gamma = 0.75
+        self.gamma = gamma
         index = np.where(env.desc == b'G')
         holes = np.where(env.desc == b'H')
         row, col = index[0][0], index[1][0]
@@ -60,7 +60,7 @@ class QLearningAgent:
         self.s = row*8 + col
         self.a = None
         self.r = 0.0
-        self.alpha = 0.65
+        self.alpha = alpha
 
     def f(self, u, n):
         """
@@ -94,7 +94,7 @@ class QLearningAgent:
         predict = self.Q[s1, action]
         target = r1 + self.gamma * np.max(self.Q[s1, :])
         self.Q[state, action] = self.Q[s1, action] + \
-            0.86 * (target - predict)
+            self.alpha * (target - predict)
 
     def choose_action(self, state):
         """
@@ -134,13 +134,8 @@ def process_data_q(env, agent_program, max_episodes, max_iters_per_episode, stat
             if U[state] < value:
                 U[state] = value
             state += 1
-        for state in states_to_graph:
-            graphs[state].append((i, U[state]))
     # Plot the graph of mean rewards (performance measure) against episode number
     draw_mean_rewards(mean_rewards, max_episodes, "Q-Learning", problem_id)
-    # Plot the utility of each state on the graph using a separate colour
-    # for each state
-    draw_utility_estimate_graph(graphs, problem_id)
     # Get the starting state and goal state indexes in order to write to file
     start_index = np.where(env.desc == b'S')
     row, col = start_index[0][0], start_index[1][0]

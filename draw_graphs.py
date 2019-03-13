@@ -4,7 +4,7 @@ episodes
 """
 
 import matplotlib.pyplot as plt
-
+from scipy.interpolate import make_interp_spline, BSpline
 
 def draw_mean_rewards(rewards, num_episodes, agent, problem_id):
     """
@@ -22,21 +22,3 @@ def draw_mean_rewards(rewards, num_episodes, agent, problem_id):
     ax.set_ylabel("Mean Reward")
     ax.grid(True)
     plt.show()
-
-
-def draw_utility_estimate_graph(graphs, problem_id):
-    """
-    Plots the Utilities for each state after the agent
-    has run a number of trials
-    """
-    for state, value in graphs.items():
-        state_x, state_y = zip(*value)
-        plt.plot(state_x, state_y, label=str(state))
-    plt.ylim([-4.0, 4.0])
-    plt.grid(True)
-    plt.title("Estimated Utility Against Episode Count\nProblem ID: {}".format(problem_id))
-    plt.Text("Each colour represents a state in the Graph")
-    plt.xlabel('Iterations')
-    plt.ylabel('Utility')
-    plt.show()
-
