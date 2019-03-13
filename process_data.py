@@ -20,7 +20,7 @@ def get_s_h_g_states(env):
     row, col = end_index[0][0], end_index[1][0]
     end = (row, col)
 
-def process_data_simple(env, agent_program, problem_id):
+def process_data_simple(env, agent_program, problem_id, row, col):
     """
     Processes the results collected in each trial in a given
     problem ID and writes to a file statistics from the results

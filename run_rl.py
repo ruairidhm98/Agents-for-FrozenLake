@@ -5,6 +5,7 @@ specifies the problem ID for the environment
 """
 import sys
 from collections import defaultdict
+from random import randint
 import numpy as np
 from draw_graphs import draw_mean_rewards
 from file_io_helpers import write_goal_episodes, write_to_file_results, write_to_file_init_states
@@ -91,7 +92,6 @@ class QLearningAgent:
         """
         self.Nsa[state, action] += 1
         s1, r1 = percept
-        print(action)
         predict = self.Q[s1, action]
         target = r1 + self.gamma * np.max(self.Q[s1, :])
         self.Q[state, action] = self.Q[s1, action] + \
@@ -101,6 +101,13 @@ class QLearningAgent:
         """
         Choose the action in state s with the highest Q-value
         """
+        q1 = self.Q[state, 0]
+        q2 = self.Q[state, 1]
+        q3 = self.Q[state, 2]
+        q4 = self.Q[state, 3]
+        # Take a random action if all the q values are the same
+        if q1 == q2 and q1 == q3 and q1 == q4:
+            return self.all_act[randint(0,3)]
         return np.argmax(self.Q[state, :])
 
 
