@@ -27,7 +27,7 @@ GAMMA = 0.9
 MAX_EPISODES = 2500
 MAX_ITERS_PER_EPISODE = 250
 REWARD_HOLE_DEFAULT = 0.0
-REWARD_HOLE_Q = -1.5
+REWARD_HOLE_Q = -2.5
 
 env_random = LochLomondEnv(problem_id=PROBLEM_ID, is_stochastic=True, reward_hole=REWARD_HOLE_DEFAULT)
 env_simple = LochLomondEnv(problem_id=PROBLEM_ID, is_stochastic=False, reward_hole=REWARD_HOLE_DEFAULT)
