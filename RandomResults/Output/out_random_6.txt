@@ -1,0 +1,15 @@
+Problem ID:                                6
+Starting State:                            (0, 6)
+Goal State:                                (7, 2)
+Reward Hole:                                0.0
+Number of Episodes:                         2500
+Max Number of Iterations per Episode:       250
+Max Number of Iterations from Episodes:     89
+Min Number of Iterations from Episodes:     1
+Max Number of Iterations to Reach the Goal: 20
+Min Number of Iterations to Reach the Goal: 20
+Covariance of Rewards:                      3.6281179138322125e-06
+Max Mean Reward:                            0.09523809523809523
+Min Mean Reward:                            0.0
+Number of Times The Agent Reached The Goal: 1/2500
+Episodes Where Goal Was Reached: 779,
