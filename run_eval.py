@@ -23,9 +23,9 @@ else:
     PROBLEM_ID = 0
 
 ALPHA = 0.86
-GAMMA = 0.9
-MAX_EPISODES = 2500
-MAX_ITERS_PER_EPISODE = 250
+GAMMA = 0.8
+MAX_EPISODES = 10000
+MAX_ITERS_PER_EPISODE = 2000
 REWARD_HOLE_DEFAULT = 0.0
 REWARD_HOLE_Q = -2.5
 
@@ -103,13 +103,13 @@ Collects and prints the results for the Random Agent and draws the graphs
 Draws:
     Mean Reward per Episode vs Episode Number
 """
-random_agent = RandomAgent(env_random)
-process_data_random(env_random, random_agent, MAX_EPISODES, MAX_ITERS_PER_EPISODE, REWARD_HOLE_DEFAULT, PROBLEM_ID)
+#random_agent = RandomAgent(env_random)
+#process_data_random(env_random, random_agent, MAX_EPISODES, MAX_ITERS_PER_EPISODE, REWARD_HOLE_DEFAULT, PROBLEM_ID)
 """
 Collects and prints the results for the Simple Agent and draws the graphs
 """
-simple_agent = SimpleAgent(env_simple)
-process_data_simple(env_simple, simple_agent, PROBLEM_ID)
+#simple_agent = SimpleAgent(env_simple)
+#process_data_simple(env_simple, simple_agent, PROBLEM_ID)
 """
 Collects and prints the results for the Q-learning Agent and draws the graphs.
 Draws:

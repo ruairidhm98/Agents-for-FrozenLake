@@ -92,6 +92,9 @@ class QLearningAgent:
         """
         self.Nsa[state, action] += 1
         s1, r1 = percept
+        if state in self.terminals:
+            self.Q[state, :] = r1
+            return
         predict = self.Q[s1, action]
         target = r1 + self.gamma * np.max(self.Q[s1, :])
         self.Q[state, action] = self.Q[s1, action] + \

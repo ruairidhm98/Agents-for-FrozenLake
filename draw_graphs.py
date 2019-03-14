@@ -16,7 +16,7 @@ def draw_mean_rewards(rewards, num_episodes, agent, problem_id):
     fig = plt.figure()
     fig.suptitle("Mean reward for each episode against iteration count\nProblem ID: {} Agent: {}".format(problem_id, agent))
     ax = fig.add_subplot(1, 1, 1)
-    plt.ylim([-3.5, 2.5])
+    plt.ylim([-1.75, 1.0])
     ax.plot(episode_axis, rewards, label='k5', marker='.')
     ax.set_xlabel("Episode Number")
     ax.set_ylabel("Mean Reward")
