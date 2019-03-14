@@ -9,7 +9,7 @@ import sys
 import random
 import numpy as np
 import matplotlib.pyplot as plt
-from solve_trial import run_single_trial
+from solve_trial import run_single_trial_random
 from uofgsocsai import LochLomondEnv
 from draw_graphs import draw_mean_rewards
 from file_io_helpers import write_goal_episodes, write_to_file_results, write_to_file_init_states
@@ -33,13 +33,13 @@ class RandomAgent:
     to attempt to try and solve the LochLomondEnv problem
     """
     def __init__(self, env):
-        self.action_space = env.action_space
+        self.env = env
 
-    def __call__(self, percept):
+    def __call__(self):
         """
         Agent program, returns a random action to be taken
         """
-        return self.action_space.sample()
+        return self.env.action_space.sample()
 
 
 def process_data_random(envir, agent_program, max_episodes, max_iter_per_episode, reward_hole, problem_id):
@@ -52,14 +52,11 @@ def process_data_random(envir, agent_program, max_episodes, max_iter_per_episode
     iters = np.zeros((max_episodes,), dtype=np.int32)
     # Keeps track of the times the agent reached the goal
     num_goal = np.zeros((max_episodes,), dtype=np.int32)
-    goal = np.where(envir.desc == b'G')
-    row, col = goal[0][0], goal[1][0]
-    goal = row*8 + col
     # Run a specified number of episodes and collect the rewards and iteration
     # count for data analysis
     for i in range(max_episodes):
-        temp_rewards, iters[i], reached_goal = run_single_trial(
-            envir, agent_program, max_iter_per_episode, reward_hole, goal)
+        temp_rewards, iters[i], reached_goal = run_single_trial_random(
+            envir, agent_program, max_iter_per_episode, REWARD_HOLE)
         mean_rewards[i] = np.mean(temp_rewards)
         if reached_goal:
             num_goal[i] = 1
@@ -74,7 +71,7 @@ def process_data_random(envir, agent_program, max_episodes, max_iter_per_episode
 
     file = open("out_random_{}.txt".format(problem_id), "w")
     write_to_file_init_states(file, problem_id, start, goal)
-    write_to_file_results(file, mean_rewards, reward_hole, max_episodes, max_iter_per_episode, iters, num_goal)
+    write_to_file_results(file, mean_rewards, REWARD_HOLE, max_episodes, max_iter_per_episode, iters, num_goal)
     write_goal_episodes(file, num_goal, max_episodes)
     draw_mean_rewards(mean_rewards, max_episodes, "Random", problem_id)
     file.close()

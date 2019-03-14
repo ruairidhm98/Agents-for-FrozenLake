@@ -8,6 +8,7 @@ import matplotlib
 import numpy as np
 import matplotlib.pyplot as plt
 from uofgsocsai import LochLomondEnv
+from solve_trial import run_single_trial_q
 from run_rl import QLearningAgent, process_data_q
 from run_simple import SimpleAgent, process_data_simple
 from run_random import RandomAgent, process_data_random
@@ -21,12 +22,12 @@ if len(sys.argv) == 2:
 else:
     PROBLEM_ID = 0
 
-ALPHA = 0.8
-GAMMA = 0.9
-MAX_EPISODES = 1000
-MAX_ITERS_PER_EPISODE = 1000
+ALPHA = 0.86
+GAMMA = 0.8
+MAX_EPISODES = 10000
+MAX_ITERS_PER_EPISODE = 2000
 REWARD_HOLE_DEFAULT = 0.0
-REWARD_HOLE_Q = -1.00
+REWARD_HOLE_Q = -2.5
 
 env_random = LochLomondEnv(problem_id=PROBLEM_ID, is_stochastic=True, reward_hole=REWARD_HOLE_DEFAULT)
 env_simple = LochLomondEnv(problem_id=PROBLEM_ID, is_stochastic=False, reward_hole=REWARD_HOLE_DEFAULT)
@@ -52,7 +53,7 @@ def Rew(s):
     if s == start: return 0.0
     elif s == goal: return +1.0
     elif s in terminals: return REWARD_HOLE_Q
-    else: return 0.0
+    else: return 0
 
 
 def compare_utils(U1, U2, H1="U1     ", H2="U2       "):
@@ -72,7 +73,7 @@ def compare_utils(U1, U2, H1="U1     ", H2="U2       "):
         file.write("%s: \t %+.3f \t %+.3f \t %+.5f\n" % (state,U1[state],U2[state],U_diff[state]))
     file.write("\n")    
     file.write("Max norm: %.5f\n" % (U_maxnorm))     
-    file.write("2-norm  : %.5f\n" % (U_2norm))
+    file.write("2-norm : %.5f\n" % (U_2norm))
     file.close()    
     return U_diff,U_2norm,U_maxnorm
 
@@ -102,13 +103,13 @@ Collects and prints the results for the Random Agent and draws the graphs
 Draws:
     Mean Reward per Episode vs Episode Number
 """
-random_agent = RandomAgent(env_random)
-process_data_random(env_random, random_agent, MAX_EPISODES, MAX_ITERS_PER_EPISODE, REWARD_HOLE_DEFAULT, PROBLEM_ID)
+#random_agent = RandomAgent(env_random)
+#process_data_random(env_random, random_agent, MAX_EPISODES, MAX_ITERS_PER_EPISODE, REWARD_HOLE_DEFAULT, PROBLEM_ID)
 """
 Collects and prints the results for the Simple Agent and draws the graphs
 """
-simple_agent = SimpleAgent(env_simple)
-process_data_simple(env_simple, simple_agent, PROBLEM_ID)
+#simple_agent = SimpleAgent(env_simple)
+#process_data_simple(env_simple, simple_agent, PROBLEM_ID)
 """
 Collects and prints the results for the Q-learning Agent and draws the graphs.
 Draws:
@@ -116,7 +117,7 @@ Draws:
     Utility Values in each State against Episode Number
 """
 states = [i for i in range(64)]
-q_learning_agent = QLearningAgent(env_qlearn, 1000, 1.5, GAMMA, alpha=None)
+q_learning_agent = QLearningAgent(env_qlearn, 5, 10, ALPHA, GAMMA)
 U = process_data_q(env_qlearn, q_learning_agent, MAX_EPISODES,
                MAX_ITERS_PER_EPISODE, states, PROBLEM_ID, REWARD_HOLE_Q)
 compare_utils(U_vi, U, 'Value itr','Q learning')
