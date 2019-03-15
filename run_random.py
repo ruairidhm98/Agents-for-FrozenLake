@@ -25,7 +25,7 @@ else:
 REWARD_HOLE = 0.0
 
 # Reset the random generator to a known state (for reproducability)
-np.random.seed(12)
+np.random.seed(2019)
 
 class RandomAgent:
     """
@@ -33,13 +33,13 @@ class RandomAgent:
     to attempt to try and solve the LochLomondEnv problem
     """
     def __init__(self, env):
-        self.action_space = env.action_space
+        self.env = env
 
     def __call__(self, percept):
         """
         Agent program, returns a random action to be taken
         """
-        return self.action_space.sample()
+        return self.env.action_space.sample()
 
 
 def process_data_random(envir, agent_program, max_episodes, max_iter_per_episode, reward_hole, problem_id):
@@ -71,7 +71,6 @@ def process_data_random(envir, agent_program, max_episodes, max_iter_per_episode
     end_index = np.where(envir.desc == b'G')
     row, col = end_index[0][0], end_index[1][0]
     goal = "({}, {})".format(row, col)
-
     file = open("out_random_{}.txt".format(problem_id), "w")
     write_to_file_init_states(file, problem_id, start, goal)
     write_to_file_results(file, mean_rewards, reward_hole, max_episodes, max_iter_per_episode, iters, num_goal)

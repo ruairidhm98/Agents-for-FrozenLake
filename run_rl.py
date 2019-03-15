@@ -29,12 +29,11 @@ class QLearningAgent:
     its neighbors. [Figure 21.8]
     """
 
-    def __init__(self, env, Ne, Rplus, gamma, alpha=None):
+    def __init__(self, env, Ne, Rplus, gamma, alpha):
         """
         Constructor. Creates a new active learning agent that
         uses Q-learning to decide which actions to take
         """
-
         self.gamma = gamma
         index = np.where(env.desc == b'G')
         holes = np.where(env.desc == b'H')
@@ -55,10 +54,8 @@ class QLearningAgent:
         # dictionary
         self.Nsa = defaultdict(float)
         self.s = self.a = self.r = None
-        if alpha:
-            self.alpha = alpha
-        else:
-            self.alpha = lambda n: 60./(59+n)
+        self.alpha = alpha
+
 
     def f(self, u, n):
         """
@@ -103,7 +100,7 @@ class QLearningAgent:
         if a is not None:
             Nsa[s, a] += 1
             # Select the action which produces the maximum Q-value in state s
-            Q[s, a] += alpha * (r + gamma * max(Q[s1, a1] for a1 in actions_in_state(s1)) - Q[s, a])
+            Q[s, a] += self.alpha * (r + gamma * max(Q[s1, a1] for a1 in actions_in_state(s1)) - Q[s, a])
         # Update for next iteration
         if s in terminals:
             self.s = self.a = self.r = None

@@ -23,7 +23,7 @@ else:
 
 ALPHA = 0.8
 GAMMA = 0.9
-MAX_EPISODES = 1000
+MAX_EPISODES = 50000
 MAX_ITERS_PER_EPISODE = 1000
 REWARD_HOLE_DEFAULT = 0.0
 REWARD_HOLE_Q = -1.00
@@ -116,7 +116,7 @@ Draws:
     Utility Values in each State against Episode Number
 """
 states = [i for i in range(64)]
-q_learning_agent = QLearningAgent(env_qlearn, 1000, 1.5, GAMMA, alpha=None)
+q_learning_agent = QLearningAgent(env_qlearn, 1000, 1.5, GAMMA, ALPHA)
 U = process_data_q(env_qlearn, q_learning_agent, MAX_EPISODES,
                MAX_ITERS_PER_EPISODE, states, PROBLEM_ID, REWARD_HOLE_Q)
 compare_utils(U_vi, U, 'Value itr','Q learning')
