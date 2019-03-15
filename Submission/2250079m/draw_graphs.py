@@ -1,5 +1,5 @@
 """
-Script which drawst the graphs using the rewards collected from each of the agents
+Script which draws the graphs using the rewards collected from each of the agents
 episodes
 """
 
