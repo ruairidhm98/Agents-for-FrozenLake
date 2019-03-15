@@ -4,11 +4,8 @@ Script which contains a function that runs a single trial for any of the agents
 
 def run_single_trial(env, agent_program, max_iters_per_episode, reward_hole, goal):
     """
-    Execute trial for given agent_program and mdp.
-    mdp should be an instance of subclass of mdp.MDP
-    Writes to a file called episode<n>.txt the results
-    of each trial, including actions taken in each state,
-    percepts etc. Returns the number of iterations it took
+    Execute trial for given agent_program and environment.
+    Returns the number of iterations it took
     to navigate successfully
     """
     rewards = []
@@ -20,8 +17,7 @@ def run_single_trial(env, agent_program, max_iters_per_episode, reward_hole, goa
     for i in range(max_iters_per_episode):
         # Move into new state by taking the action
         percept = (current_state, reward)
-        # Learning phase, update the Q value for moving
-        # into the new state
+        # Learning phase, update the Q value for moving into the new state
         next_action = agent_program(percept)
         rewards.append(reward)
         iters += 1
@@ -29,7 +25,6 @@ def run_single_trial(env, agent_program, max_iters_per_episode, reward_hole, goa
         if next_action is None:
             break
         # Take the action specified in the agent program (The Q-Learning algorithm)
-        # We are in a goal state
         current_state, reward, done, info = env.step(next_action)
     if current_state == goal:
         reached_goal = True

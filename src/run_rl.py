@@ -87,20 +87,19 @@ class QLearningAgent:
         alpha, gamma, terminals = self.alpha, self.gamma, self.terminals
         Q, Nsa = self.Q, self.Nsa
         actions_in_state = self.actions_in_state
-
         s, a, r = self.s, self.a, self.r
         # Current state and reward;  s' and r'
         s1, r1 = percept
         # If prev state was a terminal state it should be updated to the reward
         if s in terminals:
-            Q[s, None] = r  
-        # Check if the last action was none i.e. no prev state or a 
+            Q[s, None] = r
+        # Check if the last action was none i.e. no prev state or a
         # terminal state, if it is not, then update the Q-value for
         # that state and action
         if a is not None:
             Nsa[s, a] += 1
             # Select the action which produces the maximum Q-value in state s
-            Q[s, a] += self.alpha * (r + gamma * max(Q[s1, a1] for a1 in actions_in_state(s1)) - Q[s, a])
+            Q[s, a] += alpha * (r + gamma * max(Q[s1, a1] for a1 in actions_in_state(s1)) - Q[s, a])
         # Update for next iteration
         if s in terminals:
             self.s = self.a = self.r = None
@@ -108,7 +107,9 @@ class QLearningAgent:
             self.s, self.r = s1, r1
             # Choose the action depending on how much the agent has explored
             # state s and taking action a and its current Q value for that state
-            self.a = argmax(actions_in_state(s1), key=lambda a1: self.f(Q[s1, a1], Nsa[s1, a1]))
+            self.a = max(actions_in_state(s1), key=lambda a1: self.f(Q[s1, a1], Nsa[s1, a1]))
+            if self.a is None and s not in terminals:
+                self.a = randint(0, 3)
         return self.a
 
 
@@ -127,12 +128,12 @@ def process_data_q(env, agent_program, max_episodes, max_iters_per_episode, stat
     graphs = {state: [] for state in states_to_graph}
     goal = np.where(env.desc == b'G')
     row_g, col_g = goal[0][0], goal[1][0]
-    goal = row_g*8 + col_g
+    goal_state = row_g*8 + col_g
     # Run no_of_iterations amount of episodes
     for i in range(max_episodes):
         # Collect the rewards and iteration count for the current episode
         temp_rewards, iters[i], goal = run_single_trial(
-            env, agent_program, max_iters_per_episode, reward_hole, goal)
+            env, agent_program, max_iters_per_episode, reward_hole, goal_state)
         # Compute the mean reward for the episode
         mean_rewards[i] = np.mean(temp_rewards)
         if goal:
