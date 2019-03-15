@@ -105,13 +105,13 @@ Collects and prints the results for the Random Agent and draws the graphs
 Draws:
     Mean Reward per Episode vs Episode Number
 """
-#random_agent = RandomAgent(env_random)
-#process_data_random(env_random, random_agent, MAX_EPISODES, MAX_ITERS_PER_EPISODE, REWARD_HOLE_DEFAULT, PROBLEM_ID)
+random_agent = RandomAgent(env_random)
+process_data_random(env_random, random_agent, MAX_EPISODES, MAX_ITERS_PER_EPISODE, REWARD_HOLE_DEFAULT, PROBLEM_ID)
 """
 Collects and prints the results for the Simple Agent and draws the graphs
 """
-#simple_agent = SimpleAgent(env_simple)
-#process_data_simple(env_simple, simple_agent, PROBLEM_ID)
+simple_agent = SimpleAgent(env_simple)
+process_data_simple(env_simple, simple_agent, PROBLEM_ID)
 """
 Collects and prints the results for the Q-learning Agent and draws the graphs.
 Draws:

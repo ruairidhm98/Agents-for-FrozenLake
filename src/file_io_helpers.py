@@ -1,5 +1,5 @@
 """
-Script which contains some helper with regards to File I/O
+Script which contains some helper functions with regards to File I/O
 """
 import numpy as np
 

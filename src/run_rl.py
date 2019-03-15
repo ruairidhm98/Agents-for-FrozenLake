@@ -9,7 +9,6 @@ from random import randint
 import numpy as np
 from draw_graphs import draw_mean_rewards
 from file_io_helpers import write_goal_episodes, write_to_file_results, write_to_file_init_states
-from process_data import get_s_h_g_states
 from uofgsocsai import LochLomondEnv
 from utils import argmax
 from solve_trial import run_single_trial
@@ -61,7 +60,6 @@ class QLearningAgent:
         """
         Exploration function. Returns fixed Rplus until
         agent has visited state, action a Ne number of times.
-        Same as ADP agent in book.
         """
         if n < self.Ne:
             return self.Rplus
@@ -70,8 +68,7 @@ class QLearningAgent:
 
     def actions_in_state(self, state):
         """
-        Return actions possible in given state.
-        Useful for max and argmax.
+        Return actions possible in a given state.
         """
         if state in self.terminals:
             return [None]
@@ -81,8 +78,8 @@ class QLearningAgent:
     def __call__(self, percept):
         """
         The Q-learning algorithm. Updates the Q value for a particular state
-        upon every iteration of the algorithm. Returns the action which the
-        agent should take according to its known Q-values
+        upon every iteration of the current episode. Returns the action which the
+        agent should take according to its known Q-values and exploration limit
         """
         alpha, gamma, terminals = self.alpha, self.gamma, self.terminals
         Q, Nsa = self.Q, self.Nsa
@@ -108,6 +105,8 @@ class QLearningAgent:
             # Choose the action depending on how much the agent has explored
             # state s and taking action a and its current Q value for that state
             self.a = max(actions_in_state(s1), key=lambda a1: self.f(Q[s1, a1], Nsa[s1, a1]))
+            # If the next action is none and we are not in a terminal state, then just take
+            # a random action
             if self.a is None and s not in terminals:
                 self.a = randint(0, 3)
         return self.a
@@ -119,7 +118,7 @@ def process_data_q(env, agent_program, max_episodes, max_iters_per_episode, stat
     Returns the results collected from run_n_trials for further
     use
     """
-    # Keeps track of all the mean reward from each epsiode, use numpy for efficiency purposes
+    # Keeps track of all the mean rewards from each epsiode
     mean_rewards = np.zeros((max_episodes,), dtype=np.float64)
     # Keeps track of the iterations per episode
     iters = np.zeros((max_episodes,), dtype=np.int32)

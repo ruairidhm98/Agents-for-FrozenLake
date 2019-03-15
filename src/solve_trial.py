@@ -22,7 +22,7 @@ def run_single_trial(env, agent_program, max_iters_per_episode, reward_hole, goa
         rewards.append(reward)
         iters += 1
         # The agent falls in a hole
-        if next_action is None:
+        if next_action is None or done:
             break
         # Take the action specified in the agent program (The Q-Learning algorithm)
         current_state, reward, done, info = env.step(next_action)
