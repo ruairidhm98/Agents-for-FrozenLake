@@ -21,12 +21,15 @@ if len(sys.argv) == 2:
 else:
     PROBLEM_ID = 0
 
+
 ALPHA = 0.8
 GAMMA = 0.9
 MAX_EPISODES = 50000
 MAX_ITERS_PER_EPISODE = 1000
 REWARD_HOLE_DEFAULT = 0.0
 REWARD_HOLE_Q = -1.00
+NE = 1000
+RPLUS = 0.1
 
 env_random = LochLomondEnv(problem_id=PROBLEM_ID, is_stochastic=True, reward_hole=REWARD_HOLE_DEFAULT)
 env_simple = LochLomondEnv(problem_id=PROBLEM_ID, is_stochastic=False, reward_hole=REWARD_HOLE_DEFAULT)
@@ -102,13 +105,13 @@ Collects and prints the results for the Random Agent and draws the graphs
 Draws:
     Mean Reward per Episode vs Episode Number
 """
-random_agent = RandomAgent(env_random)
-process_data_random(env_random, random_agent, MAX_EPISODES, MAX_ITERS_PER_EPISODE, REWARD_HOLE_DEFAULT, PROBLEM_ID)
+#random_agent = RandomAgent(env_random)
+#process_data_random(env_random, random_agent, MAX_EPISODES, MAX_ITERS_PER_EPISODE, REWARD_HOLE_DEFAULT, PROBLEM_ID)
 """
 Collects and prints the results for the Simple Agent and draws the graphs
 """
-simple_agent = SimpleAgent(env_simple)
-process_data_simple(env_simple, simple_agent, PROBLEM_ID)
+#simple_agent = SimpleAgent(env_simple)
+#process_data_simple(env_simple, simple_agent, PROBLEM_ID)
 """
 Collects and prints the results for the Q-learning Agent and draws the graphs.
 Draws:
@@ -116,7 +119,7 @@ Draws:
     Utility Values in each State against Episode Number
 """
 states = [i for i in range(64)]
-q_learning_agent = QLearningAgent(env_qlearn, 1000, 1.5, GAMMA, ALPHA)
+q_learning_agent = QLearningAgent(env_qlearn, NE, RPLUS, GAMMA, ALPHA)
 U = process_data_q(env_qlearn, q_learning_agent, MAX_EPISODES,
                MAX_ITERS_PER_EPISODE, states, PROBLEM_ID, REWARD_HOLE_Q)
 compare_utils(U_vi, U, 'Value itr','Q learning')
