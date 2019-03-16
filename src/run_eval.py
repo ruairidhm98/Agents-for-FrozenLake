@@ -100,6 +100,9 @@ def value_iteration(epsilon=0.001):
 
 
 U_vi = value_iteration(epsilon=0.001)
+from pprint import pprint
+pprint(U_vi)
+exit(0)
 """
 Collects and prints the results for the Random Agent and draws the graphs
 Draws:
