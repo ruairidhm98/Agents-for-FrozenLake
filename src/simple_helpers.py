@@ -42,13 +42,13 @@ def my_best_first_graph_search(problem, f):
         # We have reached the goal, return the solution
         if problem.goal_test(node.state):
             iterations += 1
-            return (iterations, node)
+            return iterations
         # Mark the node as visited
         explored.add(node.state)
         # Loop over the nodes neighbours and find the next node
         # with minimum f(n)
         for child in node.expand(problem):
-            # Only consider new nodes which havent explored yet
+            # Only consider new nodes which havent been explored yet
             # and the ones which we are about to explore in the
             # loop
             if child.state not in explored and child not in frontier:
@@ -63,7 +63,6 @@ def my_best_first_graph_search(problem, f):
                     frontier.append(child)
                     iterations += 1
         iterations += 1
-
     return iterations
 
 

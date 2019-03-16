@@ -1,4 +1,4 @@
 Problem ID:                                5
 Starting State:                            (0, 5)
 Goal State:                                (7, 3)
-Number of Iterations to Reach Goal: (152, <Node S_7_3>)
+Number of Iterations to Reach Goal: 152
