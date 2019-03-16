@@ -2,8 +2,7 @@
 Script which creates an instance of a problem specified in the
 LochLomondEnv class and uses a random agent to attempt to solve
 the problem for a number of attempts. The results are then
-plotted as a line chart and the mean time taken for each episode
-and standard deviation of the time is printed to the stdout
+plotted as a line chart as the mean reward against episode
 """
 import sys
 import random

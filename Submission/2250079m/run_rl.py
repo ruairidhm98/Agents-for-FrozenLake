@@ -25,7 +25,7 @@ class QLearningAgent:
     TAKEN FROM LAB 7-RL
     An exploratory Q-learning agent. It avoids having to learn the transition
     model because the Q-value of a state can be related directly to those of
-    its neighbors. [Figure 21.8]
+    its neighbors. AIMA [Figure 21.8]
     """
 
     def __init__(self, env, Ne, Rplus, gamma, alpha):
@@ -42,7 +42,7 @@ class QLearningAgent:
         self.terminals = [row*8 + col]
         for i in range(len(holes[0])):
             row, col = holes[0][i], holes[1][i]
-            self.terminals += [row*8 + col]
+            self.terminals.append([row*8 + col])
         self.all_act = [act for act in range(env.action_space.n)]
         # Iteration limit in exploration function
         # Large value to assign before iteration limit

@@ -21,7 +21,7 @@ def run_single_trial(env, agent_program, max_iters_per_episode, reward_hole, goa
         next_action = agent_program(percept)
         rewards.append(reward)
         iters += 1
-        # The agent falls in a hole
+        # The episode is finished
         if next_action is None or done:
             break
         # Take the action specified in the agent program (The Q-Learning algorithm)

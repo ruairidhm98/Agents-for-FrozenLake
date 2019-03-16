@@ -14,7 +14,7 @@ def draw_mean_rewards(rewards, num_episodes, agent, problem_id):
     episode_axis = [i for i in range(num_episodes)]
     plt.rc('figure', figsize=(8.0, 4.0), dpi=140)
     fig = plt.figure()
-    fig.suptitle("Mean reward for each episode against iteration count\nProblem ID: {} Agent: {}".format(problem_id, agent))
+    fig.suptitle("Mean reward for each episode against Episode Number\nProblem ID: {} Agent: {}".format(problem_id, agent))
     ax = fig.add_subplot(1, 1, 1)
     plt.ylim([-1.0, 1.0])
     yticks = [-1.0,-0.8,-0.6,-0.4,-0.2,0.00,0.2,0.4,0.6,0.8,1.0]

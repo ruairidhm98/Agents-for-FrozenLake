@@ -77,7 +77,7 @@ def compare_utils(U1, U2, H1="U1     ", H2="U2       "):
     file.write("Max norm: %.5f\n" % (U_maxnorm))     
     file.write("2-norm  : %.5f\n" % (U_2norm))
     file.close()    
-    return U_diff,U_2norm,U_maxnorm
+    return (U_diff, U_2norm, U_maxnorm)
 
 
 def value_iteration(epsilon=0.001):
@@ -101,19 +101,22 @@ def value_iteration(epsilon=0.001):
 
 U_vi = value_iteration(epsilon=0.001)
 """
-Collects and prints the results for the Random Agent and draws the graphs
+Collects and writes the results to a file for the Random Agent and 
+draws the graph
 Draws:
     Mean Reward per Episode vs Episode Number
 """
 random_agent = RandomAgent(env_random)
 process_data_random(env_random, random_agent, MAX_EPISODES, MAX_ITERS_PER_EPISODE, REWARD_HOLE_DEFAULT, PROBLEM_ID)
 """
-Collects and prints the results for the Simple Agent and draws the graphs
+Collects and writes the results for the Simple Agent containing
+data such as the number of iterations to reach the goal
 """
 simple_agent = SimpleAgent(env_simple)
 process_data_simple(env_simple, simple_agent, PROBLEM_ID)
 """
-Collects and prints the results for the Q-learning Agent and draws the graphs.
+Collects and writes the results to a file for the Q-learning Agent 
+and draws the graphs.
 Draws:
     Mean Reward per Episode vs Episode Number
     Utility Values in each State against Episode Number
