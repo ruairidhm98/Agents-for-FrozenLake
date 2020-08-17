@@ -1,10 +1,9 @@
 #pragma once
 
 #include "agents/agent.hpp"
+#include "env/environment.hpp"
 #include <unordered_map>
 #include <vector>
-
-class Environment;
 
 class QLearningParams
 {
@@ -31,7 +30,7 @@ class QLearningAgent : public Agent
 {
 private:
   QLearningParams m_params;
-  Environment *m_env;
+  FrozenLake m_env;
   std::unordered_map<int,double> m_qTable;
 
 public:

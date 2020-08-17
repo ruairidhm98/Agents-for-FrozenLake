@@ -1,0 +1,12 @@
+[
+{
+  "directory": "/Users/ruairidhmacgregor/Documents/Code/C++/TaskManager/Agents-for-FrozenLake/c++/build/src/lib",
+  "command": "/usr/bin/clang++  -I/usr/local/include -I/Users/ruairidhmacgregor/Documents/Code/C++/TaskManager/Agents-for-FrozenLake/c++/src/include -I/Users/ruairidhmacgregor/Documents/Code/C++/TaskManager/Agents-for-FrozenLake/c++/src/lib -g -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX10.15.sdk -o CMakeFiles/agent_lib.dir/agents/q_agent.cpp.o -c /Users/ruairidhmacgregor/Documents/Code/C++/TaskManager/Agents-for-FrozenLake/c++/src/lib/agents/q_agent.cpp",
+  "file": "/Users/ruairidhmacgregor/Documents/Code/C++/TaskManager/Agents-for-FrozenLake/c++/src/lib/agents/q_agent.cpp"
+},
+{
+  "directory": "/Users/ruairidhmacgregor/Documents/Code/C++/TaskManager/Agents-for-FrozenLake/c++/build/src/lib",
+  "command": "/usr/bin/clang++  -I/usr/local/include -I/Users/ruairidhmacgregor/Documents/Code/C++/TaskManager/Agents-for-FrozenLake/c++/src/include -I/Users/ruairidhmacgregor/Documents/Code/C++/TaskManager/Agents-for-FrozenLake/c++/src/lib -g -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX10.15.sdk -o CMakeFiles/agent_lib.dir/env/environment.cpp.o -c /Users/ruairidhmacgregor/Documents/Code/C++/TaskManager/Agents-for-FrozenLake/c++/src/lib/env/environment.cpp",
+  "file": "/Users/ruairidhmacgregor/Documents/Code/C++/TaskManager/Agents-for-FrozenLake/c++/src/lib/env/environment.cpp"
+}
+]
