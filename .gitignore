@@ -4,3 +4,5 @@
 # Cached files
 *.pyc
 __pycache__
+.vscode
+*.o
