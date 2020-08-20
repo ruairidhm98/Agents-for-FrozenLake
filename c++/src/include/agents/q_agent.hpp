@@ -19,6 +19,6 @@ public:
   QLearningAgent(QLearningParams params, FrozenLake &env);
   double exploration(double u, unsigned n) const;
   std::vector<eAction> actionsInState();
-  int learn() override;
+  eAction learn() override;
   ~QLearningAgent();
 };

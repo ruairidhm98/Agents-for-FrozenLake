@@ -21,4 +21,5 @@ namespace Constants
 namespace Helpers
 {
   void splitWord(std::string &line, std::vector<std::string> &splitLine);
+  eAction generateNextAction(eAction action, std::vector<eAction> &allowableActions);
 }

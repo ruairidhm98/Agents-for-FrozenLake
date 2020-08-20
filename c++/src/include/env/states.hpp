@@ -2,8 +2,6 @@
 
 #include "globals/globals.hpp"
 
-#include <boost/math/distributions/uniform.hpp>
-
 #include <array>
 #include <utility>
 
@@ -13,6 +11,7 @@ protected:
   char m_label;
   bool m_curState;
   double m_reward;
+
 public:
   StateMisc(char label, bool curState, double reward)
     : m_label(label)
@@ -59,14 +58,13 @@ public:
 
 class StateParams
 {
-  using TransitionModel = std::array<double, Constants::NUM_ACTIONS>;
   using Position = std::pair<unsigned,unsigned>;
+  using TransitionModel = std::array<double, Constants::NUM_ACTIONS>;
 
 protected:
+  Position m_pos;
   StateMisc m_params;
   TransitionModel m_transitionModel;
-  std::pair<unsigned, unsigned> m_pos;
-  boost::math::uniform_distribution<> m_uniform;
 
 public:
   StateParams(StateMisc params, TransitionModel transitionModel, Position pos)
@@ -137,10 +135,40 @@ public:
   virtual ~State() = default;
 };
 
-class Hole : public State
+class Frozen : public State
 {
 private:
   StateParams m_params;
+  std::vector<eAction> m_allowableActions;
+
+public:
+  Frozen(StateParams params)
+    : m_params(params)
+  {}
+
+  Frozen() = default;
+
+  virtual eAction process(eAction action) override
+  {
+    Helpers::generateNextAction(action); 
+  }
+
+  virtual char getLabel() const override
+  {
+    return m_params.getLabel();
+  }
+  
+  const StateParams &getParams() const override
+  {
+    return m_params;
+  }
+};
+
+class Exit : public State
+{
+private:
+  StateParams m_params;
+
 public:
   Hole(StateParams params)
     : m_params(params)
@@ -152,87 +180,6 @@ public:
   virtual eAction process(eAction action) override
   {
     return eAction::NO_ACTION;
-  }
-
-  virtual char getLabel() const override
-  {
-    return m_params.getLabel();
-  }
-
-  const StateParams &getParams() const override
-  {
-    return m_params;
-  }
-};
-
-class Frozen : public State
-{
-private:
-  StateParams m_params;
-public:
-  Frozen(StateParams params)
-    : m_params(params)
-  {}
-
-  Frozen() = default;
-
-  virtual eAction process(eAction action) override
-  {
-    return eAction::LEFT;
-  }
-
-  virtual char getLabel() const override
-  {
-    return m_params.getLabel();
-  }
-  
-  const StateParams &getParams() const override
-  {
-    return m_params;
-  }
-};
-
-class Goal : public State
-{
-private:
-  StateParams m_params;
-public:
-  Goal(StateParams params)
-    : m_params(params)
-  {}
-
-  Goal() = default;
-
-  virtual eAction process(eAction action) override
-  {
-    return eAction::RIGHT;
-  }
-
-  virtual char getLabel() const override
-  {
-    return m_params.getLabel();
-  }
-  
-  const StateParams &getParams() const override
-  {
-    return m_params;
-  }
-};
-
-class Start : public State
-{
-private:
-  StateParams m_params;
-public:
-  Start(StateParams params)
-    : m_params(params)
-  {}
-
-  Start() = default;
-
-  virtual eAction process(eAction action) override
-  {
-    return eAction::UP;
   }
 
   virtual char getLabel() const override

@@ -1,8 +1,10 @@
 // Contains the agent interface to
 #pragma once
 
+#include "globals/globals.hpp"
+
 class Agent
 {
 public:
-  virtual int learn() = 0;
+  virtual eAction learn() = 0;
 };

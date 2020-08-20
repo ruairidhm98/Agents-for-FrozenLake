@@ -47,24 +47,23 @@ void FrozenLake::ProcessEnvMap(ifstream &stream)
       // Goal state
       if (word == "G")
       {
-        m_env[nRow][nCol] = make_unique<Goal>();
+        m_env[nRow][nCol] = make_unique<Exit>();
         m_goalState = (m_env[nRow][nCol]).get();
       }
       // Hole state
       else if (word == "H")
       {
-        m_env[nRow][nCol] = make_unique<Hole>();
+        m_env[nRow][nCol] = make_unique<Exit>();
         m_terminalStates.push_back((m_env[nRow][nCol]).get());
       }
       // Start state or frozen (the start must be frozen...)
-      else if (word == "S")
-      {
-        m_env[nRow][nCol] = make_unique<Start>();
-        m_startingState = (m_env[nRow][nCol]).get();
-      }
-      else if (word == "F")
+      else if (word == "F" || word == "S")
       {
         m_env[nRow][nCol] = make_unique<Frozen>();
+        if (word == "S")
+        {
+          m_startingState = (m_env[nRow][nCol]).get();
+        }
       }
       ++nCol;
     }
