@@ -1,5 +1,8 @@
 #pragma once
 
+#include <boost/math/distributions/uniform.hpp>
+#include <boost/random.hpp>
+
 #include <exception>
 #include <string>
 #include <vector>
@@ -20,6 +23,9 @@ namespace Constants
 
 namespace Helpers
 {
+  boost::random::mt19937 gen{static_cast<unsigned>(time(NULL))};
+  boost::random::uniform_int_distribution<> dist{1, 100};
+  
   void splitWord(std::string &line, std::vector<std::string> &splitLine);
   eAction generateNextAction(eAction action, std::vector<eAction> &allowableActions);
 }

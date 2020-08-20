@@ -28,5 +28,5 @@ std::vector<eAction> QLearningAgent::actionsInState()
 
 eAction QLearningAgent::learn()
 {
-  
+  return eAction::NO_ACTION;
 }

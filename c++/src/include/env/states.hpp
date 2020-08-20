@@ -150,7 +150,7 @@ public:
 
   virtual eAction process(eAction action) override
   {
-    Helpers::generateNextAction(action); 
+    return Helpers::generateNextAction(action, m_allowableActions); 
   }
 
   virtual char getLabel() const override
@@ -170,11 +170,11 @@ private:
   StateParams m_params;
 
 public:
-  Hole(StateParams params)
+  Exit(StateParams params)
     : m_params(params)
   {}
 
-  Hole() = default;
+  Exit() = default;
 
   // If we are in a hole state, then we must exit
   virtual eAction process(eAction action) override
