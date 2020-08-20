@@ -36,6 +36,11 @@ eAction QLearningAgent::learn()
   return eAction::NO_ACTION;
 }
 
+void QLearningAgent::setCurrentState(State *s)
+{
+  m_currentState = s;
+}
+
 void QLearningAgent::printDetails() const
 {
   cout << "Agent: Q-Learner" << endl;

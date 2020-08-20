@@ -70,9 +70,31 @@ void FrozenLake::processEnvMap(ifstream &stream)
   }
 }
 
-State *FrozenLake::getState(unsigned i, unsigned j) const
+const State *FrozenLake::getState(unsigned i, unsigned j) const
 {
   return (m_env[i][j]).get();
+}
+
+const State *FrozenLake::getCurrentState() const
+{
+  return m_currentState;
+}
+
+const State *FrozenLake::getGoalState() const
+{
+  return m_goalState;
+}
+
+const State *FrozenLake::getStartingState() const
+{
+  return m_startingState;
+}
+
+const State *FrozenLake::next(eAction action)
+{
+  auto pos = m_currentState->getParams().getPosition();
+  actionToIndexMove(action, pos);
+  return (m_env[pos.first][pos.second]).get();
 }
 
 void FrozenLake::print() const

@@ -111,7 +111,7 @@ public:
     return m_transitionModel;
   }
 
-  const Position &getPosition() const
+  Position getPosition() const
   {
     return m_pos;
   }

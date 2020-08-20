@@ -28,7 +28,11 @@ private:
 
 public:
   FrozenLake(std::string file);
-  State *getState(unsigned i, unsigned j) const;
+  const State *getState(unsigned i, unsigned j) const;
+  const State *getCurrentState() const;
+  const State *getGoalState() const;
+  const State *getStartingState() const;
+  const State *next(eAction action);
   void print() const;
   ~FrozenLake();
 };

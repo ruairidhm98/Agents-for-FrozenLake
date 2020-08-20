@@ -10,6 +10,7 @@ using boost::is_any_of;
 using boost::algorithm::trim;
 using boost::algorithm::split;
 
+using std::pair;
 using std::sample;
 using std::string;
 using std::vector;
@@ -20,6 +21,24 @@ namespace Helpers
   {
     trim(line);
     split(splitLine, line, boost::is_any_of(", "));
+  }
+  
+  void actionToIndexMove(eAction action, pair<unsigned,unsigned> &pos)
+  {
+    switch(action)
+    {
+    case eAction::UP:
+      ++pos.first;
+      break;
+    case eAction::DOWN:
+      --pos.first;
+      break;
+    case eAction::LEFT:
+      --pos.second;
+      break;
+    case eAction::RIGHT:
+      ++pos.second;
+    }
   }
 
   eAction generateNextAction(eAction action, vector<eAction> &allowableActions)

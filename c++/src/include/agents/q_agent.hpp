@@ -23,5 +23,6 @@ public:
   QLearningAgent(QLearningParams params, FrozenLake &env);
   eAction learn() override;
   void printDetails() const override;
+  void setCurrentState(State *state);
   ~QLearningAgent();
 };
