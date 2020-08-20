@@ -44,19 +44,18 @@ void FrozenLake::processEnvMap(ifstream &stream)
     Helpers::splitWord(line, splitLine);
     for (const auto &word : splitLine)
     {
-      // Goal state
-      if (word == "G")
+      if (word == "H" || word == "G")
       {
         m_env[nRow][nCol] = make_unique<Exit>();
-        m_goalState = (m_env[nRow][nCol]).get();
+        if (word == "H")
+        {
+          m_terminalStates.push_back((m_env[nRow][nCol]).get());
+        }
+        else
+        {
+          m_goalState = (m_env[nRow][nCol]).get();
+        }
       }
-      // Hole state
-      else if (word == "H")
-      {
-        m_env[nRow][nCol] = make_unique<Exit>();
-        m_terminalStates.push_back((m_env[nRow][nCol]).get());
-      }
-      // Start state or frozen (the start must be frozen...)
       else if (word == "F" || word == "S")
       {
         m_env[nRow][nCol] = make_unique<Frozen>();
