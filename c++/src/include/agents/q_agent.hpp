@@ -11,9 +11,9 @@ class QLearningAgent : public Agent
 {
 private:
   FrozenLake &m_env;
+  State *m_currentState; 
   QLearningParams m_params;
   std::vector<int> m_qTable;
-  std::pair<unsigned,unsigned> m_currentState;
 
 public:
   QLearningAgent(QLearningParams params, FrozenLake &env);

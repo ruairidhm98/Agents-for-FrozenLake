@@ -7,28 +7,125 @@
 #include <array>
 #include <utility>
 
-class StateParams
+class StateMisc
 {
 protected:
+  char m_label;
+  bool m_curState;
   double m_reward;
+public:
+  StateMisc(char label, bool curState, double reward)
+    : m_label(label)
+    , m_curState(curState)
+    , m_reward(reward)
+  {}
+
+  char getLabel() const
+  {
+    return m_curState ? 'X' : m_label;
+  }
+
+  bool getIsCurrentState() const
+  {
+    return m_curState;
+  }
+
+  double getReward() const
+  {
+    return m_reward;
+  }
+
+  void setLabel(char label)
+  {
+    m_label = label;
+  }
+
+  void setIsCurrentState(bool curState)
+  {
+    m_curState = curState;
+  }
+
+  const StateMisc &operator=(const StateMisc &other)
+  {
+    if (this != &other)
+    {
+      m_reward = other.m_reward;
+      m_curState = other.m_curState;
+      m_label = other.m_label;
+    }
+    return *this;
+  }
+};
+
+class StateParams
+{
+  using TransitionModel = std::array<double, Constants::NUM_ACTIONS>;
+  using Position = std::pair<unsigned,unsigned>;
+
+protected:
+  StateMisc m_params;
+  TransitionModel m_transitionModel;
   std::pair<unsigned, unsigned> m_pos;
   boost::math::uniform_distribution<> m_uniform;
-  std::array<double, Constants::NUM_ACTIONS> m_transitionModel;
 
 public:
-  StateParams(double reward, std::array<double,
-              Constants::NUM_ACTIONS> transitionModel,
-              std::pair<unsigned, unsigned> pos)
-    : m_reward(reward)
+  StateParams(StateMisc params, TransitionModel transitionModel, Position pos)
+    : m_params(params)
     , m_transitionModel(transitionModel)
     , m_pos(pos)
   {}
 
   StateParams()
-    : m_reward(0.0)
+    : m_params('X', false, 0.0)
     , m_transitionModel({0.0, 0.0, 0.0, 0.0})
     , m_pos({0, 0})
   {}
+
+  char getLabel() const
+  {
+    return m_params.getLabel();
+  }
+
+  double getReward() const
+  {
+    return m_params.getReward();
+  }
+
+  bool isCurrentState() const
+  {
+    return m_params.getIsCurrentState();
+  }
+
+  void setCurrentState()
+  {
+    m_params.setIsCurrentState(true);
+  }
+
+  void unsetCurrentState()
+  {
+    m_params.setIsCurrentState(false);
+  }
+
+  TransitionModel getTransitionModel() const
+  {
+    return m_transitionModel;
+  }
+
+  const Position &getPosition() const
+  {
+    return m_pos;
+  }
+
+  const StateParams &operator=(const StateParams &other)
+  {
+    if (this != &other)
+    {
+      m_params = other.m_params;
+      m_transitionModel = other.m_transitionModel;
+      m_pos = other.m_pos;
+    }
+    return *this;
+  }
 };
 
 class State
@@ -36,7 +133,8 @@ class State
 public:
   virtual eAction process(eAction action) = 0;
   virtual char getLabel() const = 0;
-  ~State() = default;
+  virtual const StateParams &getParams() const = 0;
+  virtual ~State() = default;
 };
 
 class Hole : public State
@@ -58,7 +156,12 @@ public:
 
   virtual char getLabel() const override
   {
-    return 'H';
+    return m_params.getLabel();
+  }
+
+  const StateParams &getParams() const override
+  {
+    return m_params;
   }
 };
 
@@ -80,7 +183,12 @@ public:
 
   virtual char getLabel() const override
   {
-    return 'F';
+    return m_params.getLabel();
+  }
+  
+  const StateParams &getParams() const override
+  {
+    return m_params;
   }
 };
 
@@ -102,7 +210,12 @@ public:
 
   virtual char getLabel() const override
   {
-    return 'G';
+    return m_params.getLabel();
+  }
+  
+  const StateParams &getParams() const override
+  {
+    return m_params;
   }
 };
 
@@ -121,8 +234,14 @@ public:
   {
     return eAction::UP;
   }
+
   virtual char getLabel() const override
   {
-    return 'S';
+    return m_params.getLabel();
+  }
+
+  const StateParams &getParams() const override
+  {
+    return m_params;
   }
 };

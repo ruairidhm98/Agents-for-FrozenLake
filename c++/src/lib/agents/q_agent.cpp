@@ -3,10 +3,12 @@
 using std::make_pair;
 
 QLearningAgent::QLearningAgent(QLearningParams params, FrozenLake &env)
-  : m_params(params)
-  , m_currentState(make_pair(0UL, 0UL))
-  , m_env(env)
-{}
+  : m_env(env)
+  , m_params(params)
+  , m_currentState(nullptr)
+{
+
+}
 
 double QLearningAgent::exploration(double u, unsigned n) const
 {
@@ -22,6 +24,6 @@ double QLearningAgent::exploration(double u, unsigned n) const
 
 std::vector<eAction> QLearningAgent::actionsInState()
 {
-  State *state = m_env.getState(m_currentState.first, m_currentState.second);
+  auto &&pos = m_currentState->getParams();
   return {};
 }
