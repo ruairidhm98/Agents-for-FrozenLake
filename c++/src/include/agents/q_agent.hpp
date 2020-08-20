@@ -31,12 +31,12 @@ class QLearningAgent : public Agent
 private:
   QLearningParams m_params;
   FrozenLake m_env;
-  std::unordered_map<int,double> m_qTable;
+  std::vector<int> m_qTable;
 
 public:
-  QLearningAgent(QLearningParams params);
+  QLearningAgent(QLearningParams params, int nStates);
   double exploration(double u, unsigned n);
   std::vector<int> actionsInState();
-  virtual int learn() override;
+  int learn() override;
   ~QLearningAgent();
 };

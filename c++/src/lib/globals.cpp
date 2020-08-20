@@ -1,4 +1,4 @@
-#include "globals.hpp"
+#include "globals/globals.hpp"
 
 #include <boost/algorithm/string.hpp>
 

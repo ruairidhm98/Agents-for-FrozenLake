@@ -1,5 +1,5 @@
 #include "env/environment.hpp"
-#include "globals.hpp"
+#include "globals/globals.hpp"
 
 #include <boost/algorithm/string.hpp>
 
@@ -9,10 +9,11 @@
 
 using std::getline;
 using std::ifstream;
+using std::make_unique;
 using std::string;
 using std::vector;
 
-FrozenLake::FrozenLake(std::string file)
+FrozenLake::FrozenLake(string file)
 {
   ifstream fStream(file);
   ProcessEnvMetaData(fStream);
@@ -23,7 +24,9 @@ FrozenLake::FrozenLake(std::string file)
 // nRow nCol 
 void FrozenLake::ProcessEnvMetaData(ifstream &stream)
 {
-  getline(fStream, line);
+  string line;
+  vector<string> splitLine;
+  getline(stream, line);
   splitWord(line, splitLine);
   m_dimensions.first = atoi(splitLine[0].c_str());
   m_dimensions.second = atoi(splitLine[1].c_str());
@@ -34,7 +37,7 @@ void FrozenLake::ProcessEnvMap(ifstream &stream)
   string line;
   vector<string> splitLine;
   int nCol = 0, nRow = 0;
-  while (getline(fStream, line))
+  while (getline(stream, line))
   {
     splitWord(line, splitLine);
     for (const auto &word : splitLine)
@@ -42,22 +45,19 @@ void FrozenLake::ProcessEnvMap(ifstream &stream)
       // Goal state
       if (word == "G")
       {
-        m_env[nRow][nCol] = std::make_unique<Goal>();
+        m_env[nRow][nCol] = make_unique<Goal>();
       }
       // Hole state
       else if (word == "H")
       {
-        m_env[nRow][nCol] = std::make_unique<Hole>();
-        m_terminalStates.append(*(m_env[nRow][nCol]))
+        m_env[nRow][nCol] = make_unique<Hole>();
+        m_terminalStates.append((m_env[nRow][nCol]).get())
       }
       // Start state or frozen (the start must be frozen...)
-      else if (word == "S" || word == "F")
+      else if (word == "S")
       {
-        m_env[nRow][nCol] = std::make_unique<Frozen>();
-        if (word == "S")
-        {
-          m_startingState = *(m_env[nRow][nCol]);
-        }
+        m_env[nRow][nCol] = make_unique<Frozen>();
+        m_startingState = (m_env[nRow][nCol]).get();
       }
       ++nCol;
     }
@@ -65,7 +65,7 @@ void FrozenLake::ProcessEnvMap(ifstream &stream)
   }
 }
 
-State &FrozenLake::getState(unsigned i, unsigned j)
+State *FrozenLake::getState(unsigned i, unsigned j) const
 {
-  return *(m_env[i][j]);
+  return (m_env[i][j]).get();
 }

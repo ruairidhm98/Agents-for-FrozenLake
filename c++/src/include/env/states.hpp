@@ -9,7 +9,7 @@ protected:
   std::vector<int> allowableActions;
 public:
   virtual void process() = 0;
-  virtual char getLabel() = 0;
+  virtual char getLabel() const = 0;
 };
 
 class Hole : public State
@@ -24,7 +24,7 @@ public:
 
   }
 
-  virtual char getLabel() override
+  virtual char getLabel() const override
   {
     return 'H';
   }
@@ -42,7 +42,7 @@ public:
 
   }
 
-  virtual char getLabel() override
+  virtual char getLabel() const override
   {
     return 'E';
   }
@@ -60,7 +60,7 @@ public:
 
   }
 
-  virtual char getLabel() override
+  virtual char getLabel() const override
   {
     return 'F';
   }
@@ -78,8 +78,21 @@ public:
 
   }
 
-  virtual char getLabel() override
+  virtual char getLabel() const override
   {
     return 'G';
   }
 };
+
+class Start : public State
+{
+public:
+  virtual void process() override
+  {
+
+  }
+  virtual char getLabel() const override
+  {
+
+  }
+}

@@ -1,2 +1,0 @@
-/usr/bin/ar qc libagent_lib.a CMakeFiles/agent_lib.dir/agents/q_agent.cpp.o CMakeFiles/agent_lib.dir/env/environment.cpp.o
-/usr/bin/ranlib libagent_lib.a
