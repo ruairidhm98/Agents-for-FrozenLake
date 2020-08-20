@@ -1,3 +1,4 @@
 include_directories(agents)
 include_directories(env)
 include_directories(globals)
+include_directories(simulator)

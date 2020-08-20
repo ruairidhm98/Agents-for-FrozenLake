@@ -4,4 +4,5 @@ add_library(
   env/environment.cpp
   globals/globals.cpp
   globals/q_learning_params.cpp
+  simulator/simulator.cpp
 )

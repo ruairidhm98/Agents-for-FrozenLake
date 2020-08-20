@@ -7,13 +7,15 @@
 #include <unordered_map>
 #include <vector>
 
+using std::vector;
+
 class QLearningAgent : public Agent
 {
 private:
   FrozenLake &m_env;
+  vector<int> m_qTable;
   State *m_currentState; 
   QLearningParams m_params;
-  std::vector<int> m_qTable;
 
 public:
   QLearningAgent(QLearningParams params, FrozenLake &env);

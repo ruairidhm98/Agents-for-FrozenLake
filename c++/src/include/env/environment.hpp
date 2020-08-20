@@ -23,7 +23,6 @@ private:
   vector<State*> m_terminalStates;
   vector<vector<unique_ptr<State> > > m_env;
 
-  // Helper functions
   void processEnvMetaData(std::ifstream &stream);
   void processEnvMap(std::ifstream &stream);
 
