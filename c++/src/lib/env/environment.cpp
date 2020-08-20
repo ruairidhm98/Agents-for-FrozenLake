@@ -7,6 +7,8 @@
 #include <iostream>
 #include <string>
 
+using std::cout;
+using std::endl;
 using std::getline;
 using std::ifstream;
 using std::make_unique;
@@ -46,6 +48,7 @@ void FrozenLake::ProcessEnvMap(ifstream &stream)
       if (word == "G")
       {
         m_env[nRow][nCol] = make_unique<Goal>();
+        m_goalState = (m_env[nRow][nCol]).get();
       }
       // Hole state
       else if (word == "H")
@@ -72,4 +75,16 @@ void FrozenLake::ProcessEnvMap(ifstream &stream)
 State *FrozenLake::getState(unsigned i, unsigned j) const
 {
   return (m_env[i][j]).get();
+}
+
+void FrozenLake::print() const
+{
+  for (const auto &states : m_env)
+  {
+    for (const auto &state : states)
+    {
+      cout << state->getLabel();
+    }
+    cout << endl;
+  }
 }

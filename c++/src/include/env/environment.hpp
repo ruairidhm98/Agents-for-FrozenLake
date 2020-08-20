@@ -14,6 +14,8 @@ using Dimensions = std::pair<unsigned,unsigned>;
 class FrozenLake
 {
 private:
+  State *m_goalState;
+  State *m_currentState;
   State *m_startingState;
   Dimensions m_dimensions;
   std::vector<State*> m_terminalStates;
@@ -25,5 +27,6 @@ private:
 public:
   FrozenLake(std::string file);
   State *getState(unsigned i, unsigned j) const;
+  void print() const;
   ~FrozenLake();
 };

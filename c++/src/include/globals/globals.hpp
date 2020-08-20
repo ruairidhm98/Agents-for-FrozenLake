@@ -15,7 +15,7 @@ enum class eAction : int
 
 namespace Constants
 {
-  static const constexpr unsigned NUM_ACTIONS;
+  static const constexpr unsigned NUM_ACTIONS = 4;
 }
 
 namespace Helpers
