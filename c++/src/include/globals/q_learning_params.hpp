@@ -14,6 +14,7 @@ public:
   unsigned getNe() const;
   double getRplus() const;
   double getAlpha() const;
+  void print() const;
   ~QLearningParams();
 };
 

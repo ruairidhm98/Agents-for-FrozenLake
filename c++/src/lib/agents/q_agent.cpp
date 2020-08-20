@@ -1,5 +1,9 @@
 #include "agents/q_agent.hpp"
 
+#include <iostream>
+
+using std::cout;
+using std::endl;
 using std::make_pair;
 
 QLearningAgent::QLearningAgent(QLearningParams params, FrozenLake &env)
@@ -23,11 +27,17 @@ double QLearningAgent::exploration(double u, unsigned n) const
 std::vector<eAction> QLearningAgent::actionsInState()
 {
   auto &&pos = m_currentState->getParams();
-  
+
   return {};
 }
 
 eAction QLearningAgent::learn()
 {
   return eAction::NO_ACTION;
+}
+
+void QLearningAgent::printDetails() const
+{
+  cout << "Agent: Q-Learner" << endl;
+  m_params.print();
 }

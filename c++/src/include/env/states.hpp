@@ -150,12 +150,12 @@ public:
 
   Frozen() = default;
 
-  virtual eAction process(eAction action) override
+  eAction process(eAction action) override
   {
     return Helpers::generateNextAction(action, m_allowableActions); 
   }
 
-  virtual char getLabel() const override
+  char getLabel() const override
   {
     return m_params.getLabel();
   }
@@ -179,12 +179,12 @@ public:
   Exit() = default;
 
   // If we are in a hole state, then we must exit
-  virtual eAction process(eAction action) override
+  eAction process(eAction action) override
   {
     return eAction::NO_ACTION;
   }
 
-  virtual char getLabel() const override
+  char getLabel() const override
   {
     return m_params.getLabel();
   }

@@ -7,4 +7,5 @@ class Agent
 {
 public:
   virtual eAction learn() = 0;
+  virtual void printDetails() const = 0;
 };
