@@ -5,6 +5,8 @@
 #include <array>
 #include <utility>
 
+using std::vector;
+
 class StateMisc
 {
 protected:
@@ -129,8 +131,8 @@ public:
 class State
 {
 public:
-  virtual eAction process(eAction action) = 0;
   virtual char getLabel() const = 0;
+  virtual eAction process(eAction action) = 0;
   virtual const StateParams &getParams() const = 0;
   virtual ~State() = default;
 };
@@ -139,7 +141,7 @@ class Frozen : public State
 {
 private:
   StateParams m_params;
-  std::vector<eAction> m_allowableActions;
+  vector<eAction> m_allowableActions;
 
 public:
   Frozen(StateParams params)

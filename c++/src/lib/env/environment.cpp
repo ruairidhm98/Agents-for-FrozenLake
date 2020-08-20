@@ -18,13 +18,13 @@ using std::vector;
 FrozenLake::FrozenLake(string file)
 {
   ifstream fStream(file);
-  ProcessEnvMetaData(fStream);
-  ProcessEnvMap(fStream);
+  processEnvMetaData(fStream);
+  processEnvMap(fStream);
 }
 
 // The first line of the input file MUST be in format
 // nRow nCol 
-void FrozenLake::ProcessEnvMetaData(ifstream &stream)
+void FrozenLake::processEnvMetaData(ifstream &stream)
 {
   string line;
   vector<string> splitLine;
@@ -34,7 +34,7 @@ void FrozenLake::ProcessEnvMetaData(ifstream &stream)
   m_dimensions.second = atoi(splitLine[1].c_str());
 }
 
-void FrozenLake::ProcessEnvMap(ifstream &stream)
+void FrozenLake::processEnvMap(ifstream &stream)
 {
   string line;
   vector<string> splitLine;

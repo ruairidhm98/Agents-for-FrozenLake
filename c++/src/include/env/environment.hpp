@@ -8,6 +8,8 @@
 #include <utility>
 #include <vector>
 
+using std::vector;
+using std::unique_ptr;
 using StateIndex = std::pair<unsigned,unsigned>;
 using Dimensions = std::pair<unsigned,unsigned>;
 
@@ -18,12 +20,13 @@ private:
   State *m_currentState;
   State *m_startingState;
   Dimensions m_dimensions;
-  std::vector<State*> m_terminalStates;
-  std::vector<std::vector<std::unique_ptr<State> > > m_env;
+  vector<State*> m_terminalStates;
+  vector<vector<unique_ptr<State> > > m_env;
 
   // Helper functions
-  void ProcessEnvMetaData(std::ifstream &stream);
-  void ProcessEnvMap(std::ifstream &stream);
+  void processEnvMetaData(std::ifstream &stream);
+  void processEnvMap(std::ifstream &stream);
+
 public:
   FrozenLake(std::string file);
   State *getState(unsigned i, unsigned j) const;
