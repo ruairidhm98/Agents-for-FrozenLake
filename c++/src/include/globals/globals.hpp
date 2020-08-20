@@ -27,6 +27,6 @@ namespace Helpers
   boost::random::uniform_int_distribution<> dist{1, 100};
   
   void splitWord(std::string &line, std::vector<std::string> &splitLine);
-  void actionToIndexMove(eAction action);
+  void actionToIndexMove(eAction action, std::pair<unsigned,unsigned> &pos);
   eAction generateNextAction(eAction action, std::vector<eAction> &allowableActions);
 }

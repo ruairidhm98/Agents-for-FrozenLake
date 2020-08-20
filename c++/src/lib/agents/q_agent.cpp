@@ -27,7 +27,6 @@ double QLearningAgent::exploration(double u, unsigned n) const
 std::vector<eAction> QLearningAgent::actionsInState()
 {
   auto &&pos = m_currentState->getParams();
-
   return {};
 }
 

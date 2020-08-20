@@ -93,7 +93,7 @@ const State *FrozenLake::getStartingState() const
 const State *FrozenLake::next(eAction action)
 {
   auto pos = m_currentState->getParams().getPosition();
-  actionToIndexMove(action, pos);
+  Helpers::actionToIndexMove(action, pos);
   return (m_env[pos.first][pos.second]).get();
 }
 
