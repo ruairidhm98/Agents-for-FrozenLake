@@ -9,6 +9,8 @@ using boost::algorithm::split;
 using std::string;
 using std::vector;
 
+static const constexpr unsigned Constants::NUM_ACTIONS = 4;
+
 namespace Helpers
 {
   void splitWord(string &line, vector<string> &splitLine)

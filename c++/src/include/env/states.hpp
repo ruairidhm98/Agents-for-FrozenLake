@@ -1,50 +1,50 @@
 #pragma once
 
-#include "globals.hpp"
+#include "globals/globals.hpp"
 
-class State
+#include <array>
+#include <boost/math/distributions/uniform.hpp>
+#include <utility>
+
+class StateParams
 {
 protected:
   double m_reward;
-  std::vector<int> allowableActions;
+  // Action - Transition model probability
+  std::array<std::pair<eAction, double>, Constants::NUM_ACTIONS> m_allowableActions;
+  boost::math::uniform_distribution<> m_uniform;
 public:
-  virtual void process() = 0;
+  StateParams(double reward, std::array<std::pair<eAction, double> allowableActions)
+  {
+
+  }
+};
+
+class State
+{
+public:
+  virtual eAction process(eAction action) = 0;
   virtual char getLabel() const = 0;
 };
 
 class Hole : public State
 {
+private:
+  StateParams m_params;
 public:
-  Hole(double reward)
+  Hole(StateParams params)
+    : m_params(params)
   {
-    State::m_reward = m_reward;
   }
-  virtual void process() override
+  // If we are in a hole state, then we must exit
+  virtual eAction process(eAction action) override
   {
-
+    return eActions::NO_ACTION;
   }
 
   virtual char getLabel() const override
   {
     return 'H';
-  }
-};
-
-class Exit : public State
-{
-public:
-  Exit()
-  {
-
-  }
-  virtual void process() override
-  {
-
-  }
-
-  virtual char getLabel() const override
-  {
-    return 'E';
   }
 };
 
@@ -55,7 +55,7 @@ public:
   {
 
   }
-  virtual void process() override
+  virtual eAction process(eAction action) override
   {
 
   }
@@ -73,7 +73,7 @@ public:
   {
 
   }
-  virtual void process() override
+  virtual eAction process(eAction) override
   {
 
   }
@@ -87,12 +87,12 @@ public:
 class Start : public State
 {
 public:
-  virtual void process() override
+  virtual eAction process(eAction) override
   {
 
   }
   virtual char getLabel() const override
   {
-
+    return 'S';
   }
-}
+};

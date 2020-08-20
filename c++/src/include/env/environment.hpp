@@ -24,6 +24,6 @@ private:
   void ProcessEnvMap(std::ifstream &stream);
 public:
   FrozenLake(std::string file);
-  State &getState(unsigned i, unsigned j) const;
+  State *getState(unsigned i, unsigned j) const;
   ~FrozenLake();
 };

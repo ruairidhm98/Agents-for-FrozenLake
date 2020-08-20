@@ -27,7 +27,7 @@ void FrozenLake::ProcessEnvMetaData(ifstream &stream)
   string line;
   vector<string> splitLine;
   getline(stream, line);
-  splitWord(line, splitLine);
+  Helpers::splitWord(line, splitLine);
   m_dimensions.first = atoi(splitLine[0].c_str());
   m_dimensions.second = atoi(splitLine[1].c_str());
 }
@@ -39,7 +39,7 @@ void FrozenLake::ProcessEnvMap(ifstream &stream)
   int nCol = 0, nRow = 0;
   while (getline(stream, line))
   {
-    splitWord(line, splitLine);
+    Helpers::splitWord(line, splitLine);
     for (const auto &word : splitLine)
     {
       // Goal state
@@ -51,13 +51,17 @@ void FrozenLake::ProcessEnvMap(ifstream &stream)
       else if (word == "H")
       {
         m_env[nRow][nCol] = make_unique<Hole>();
-        m_terminalStates.append((m_env[nRow][nCol]).get())
+        m_terminalStates.push_back((m_env[nRow][nCol]).get());
       }
       // Start state or frozen (the start must be frozen...)
       else if (word == "S")
       {
-        m_env[nRow][nCol] = make_unique<Frozen>();
+        m_env[nRow][nCol] = make_unique<Start>();
         m_startingState = (m_env[nRow][nCol]).get();
+      }
+      else if (word == "F")
+      {
+        m_env[nRow][nCol] = make_unique<Frozen>();
       }
       ++nCol;
     }

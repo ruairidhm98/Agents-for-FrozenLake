@@ -4,13 +4,19 @@
 #include <string>
 #include <vector>
 
-enum class eActions : int
+enum class eAction : int
 {
   DOWN,
   LEFT,
   RIGHT,
-  UP
+  UP,
+  NO_ACTION
 };
+
+namespace Constants
+{
+  static const constexpr unsigned NUM_ACTIONS;
+}
 
 namespace Helpers
 {
