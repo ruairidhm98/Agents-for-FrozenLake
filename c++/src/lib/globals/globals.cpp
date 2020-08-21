@@ -38,6 +38,10 @@ namespace Helpers
       break;
     case eAction::RIGHT:
       ++pos.second;
+      break;
+    case eAction::NO_ACTION:
+    default:
+      ;
     }
   }
 

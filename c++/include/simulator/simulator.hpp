@@ -25,5 +25,5 @@ public:
 };
 
 // Compile both so we don't have to check if verbose at runtime if there is no need
-class SimRunner<0>;
-class SimRunner<1>;
+template<> class SimRunner<0>;
+template<> class SimRunner<1>;
