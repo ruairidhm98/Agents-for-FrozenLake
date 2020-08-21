@@ -23,7 +23,7 @@ void SimRunner<verbose>::run()
     m_agent->printDetails();
   }
 
-  for (auto i = 0UL; i < m_config.m_numEpisodes; i++)
+  for (unsigned i = 0; i < m_config.m_numEpisodes; i++)
   {
     if constexpr(verbose)
     {
@@ -31,7 +31,7 @@ void SimRunner<verbose>::run()
       cout << "==========" << endl;
     }
     m_agent->setCurrentState(m_env.getStartingState());
-    for (auto j = 0UL; j < m_config.m_itersPerEpisode; j++)
+    for (unsigned j = 0UL; j < m_config.m_itersPerEpisode; j++)
     {
       // Take information from percepts
       auto *currentState = m_agent->getCurrentState();
