@@ -37,7 +37,6 @@ void SimRunner<verbose>::run()
       auto *currentState = m_agent->getCurrentState();
       auto &&stateParams = currentState->getParams();
       auto reward = stateParams.getReward();
-
       auto nextAction = m_agent->learn();
 
       // We are done - have reached a hole or the goal state
@@ -45,11 +44,10 @@ void SimRunner<verbose>::run()
       {
         break;
       }
-
       auto *nextState = m_env.next(nextAction);
       if (nextState->getLabel() == 'G')
       {
-        cout << "Reached goal" << endl;
+        cout << "Reached goal: true" << endl;
         cout << "Iterations: " << (j+1) << endl;
         break;
       }

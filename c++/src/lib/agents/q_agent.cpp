@@ -12,7 +12,7 @@ QLearningAgent::QLearningAgent(QLearningParams params, FrozenLake &env)
   , m_currentState(nullptr)
 {}
 
-double QLearningAgent::exploration(double u, unsigned n) const
+inline double QLearningAgent::exploration(double u, unsigned n) const
 {
   if (n < m_params.getNe())
   {
@@ -24,14 +24,11 @@ double QLearningAgent::exploration(double u, unsigned n) const
   }
 }
 
-std::vector<eAction> QLearningAgent::actionsInState()
-{
-  auto &&pos = m_currentState->getParams();
-  return {};
-}
-
 eAction QLearningAgent::learn()
 {
+  QLearningParams params(m_params);
+  
+
   return eAction::NO_ACTION;
 }
 

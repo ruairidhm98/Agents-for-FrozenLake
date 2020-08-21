@@ -23,3 +23,7 @@ public:
   SimRunner(Agent *agent, FrozenLake &env, SimRunnerConfig config);
   void run();
 };
+
+// Compile both so we don't have to check if verbose at runtime if there is no need
+class SimRunner<0>;
+class SimRunner<1>;

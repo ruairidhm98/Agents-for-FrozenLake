@@ -164,6 +164,11 @@ public:
   {
     return m_params;
   }
+
+  const vector<eAction> &getAllowableActions() const
+  {
+    return m_allowableActions;
+  }
 };
 
 class Exit : public State

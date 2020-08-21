@@ -12,6 +12,13 @@ QLearningParams::QLearningParams(double gamma, unsigned ne, double rplus, double
   , m_alpha(alpha)
 {}
 
+QLearningParams::QLearningParams(const QLearningParams &other)
+  : m_gamma(other.m_gamma)
+  , m_ne(other.m_ne)
+  , m_rPlus(other.m_rPlus)
+  , m_alpha(other.m_alpha)
+{}
+
 double QLearningParams::getGamma() const
 {
   return m_gamma;
@@ -30,6 +37,18 @@ double QLearningParams::getRplus() const
 double QLearningParams::getAlpha() const
 {
   return m_alpha;
+}
+
+const QLearningParams &QLearningParams::operator=(const QLearningParams &other)
+{
+  if (this != &other)
+  {
+    m_gamma = other.m_gamma;
+    m_ne = other.m_ne;
+    m_rPlus = other.m_rPlus;
+    m_alpha = other.m_alpha;
+  }
+  return *this;
 }
 
 void QLearningParams::print() const

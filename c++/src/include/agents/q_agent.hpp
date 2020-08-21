@@ -17,10 +17,10 @@ private:
   State *m_currentState; 
   QLearningParams m_params;
 
-  vector<eAction> actionsInState();
   double exploration(double u, unsigned n) const;
 public:
   QLearningAgent(QLearningParams params, FrozenLake &env);
+  QLearningAgent(const QLearningAgent &other);
   eAction learn() override;
   void printDetails() const override;
   void setCurrentState(State *state) override;
